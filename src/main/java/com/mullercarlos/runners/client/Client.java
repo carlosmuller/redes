@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.stream.IntStream;
 
 @ToString(callSuper = true)
 public class Client extends RunnerInterface {
@@ -23,14 +24,15 @@ public class Client extends RunnerInterface {
         try {
             Socket socket = new Socket(split[0], Integer.parseInt(split[1]));
             @Cleanup MessageHandler messageHandler = new MessageHandler(socket);
-            messageHandler.sendMessage("huias huias huias\n\n\n\n\n uhashuiashiudasiudh \n ashudiashdiuashdiuasd", false);
-            String message = messageHandler.receiveMessage(false);
+            messageHandler.sendMessage("Cliente [0] huias huias huias\n\n\n\n\n uhashuiashiudasiudh \n ashudiashdiuashdiuasd");
+            String message = messageHandler.receiveMessage();
             System.out.println("RECEBI A MENSAGEM :  " + message);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 

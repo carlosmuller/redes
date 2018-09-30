@@ -18,19 +18,18 @@ public class MessageHandler extends Thread {
     }
 
     public void handle(){
-        String message = receiveMessage(false).toUpperCase();
-        sendMessage(message, false);
+        String message = receiveMessage().toUpperCase();
+        sendMessage(message);
     }
 
-    public void sendMessage(String message, boolean shouldCloseOutputStream) {
+    public void sendMessage(String message) {
         System.out.println("MANDANDO MESAGEM");
         this.output.println(message + "\n");
-        if (shouldCloseOutputStream) output.close();
         System.out.println("MANDEI MESAGEM");
     }
 
     @SneakyThrows
-    public String receiveMessage(boolean shouldCloseInputStream) {
+    public String receiveMessage() {
         System.out.println("RECEBENDO MENSAGEM");
         String line = this.input.readLine();
         StringBuilder builder = new StringBuilder();
