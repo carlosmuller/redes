@@ -1,11 +1,9 @@
-package cli;
+package com.mullercarlos.cli;
 
 import lombok.*;
-import main.Mode;
+import com.mullercarlos.main.Mode;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
-
-import static main.Mode.server;
 
 @ToString
 @EqualsAndHashCode
@@ -28,9 +26,6 @@ public class CliArgs {
 
     @Option(names = {"-s", "--server"}, description = "servidor e porta para se comunicar 123.112.132.123:8080")
     private String server;
-
-    public boolean isServer() {
-        return server.equals(this.mode);
-    }
+    
 
 }
