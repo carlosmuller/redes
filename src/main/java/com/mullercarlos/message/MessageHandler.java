@@ -17,7 +17,7 @@ public class MessageHandler extends Thread {
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public void handle(){
+    public void handle() {
         String message = receiveMessage().toUpperCase();
         sendMessage(message);
     }
@@ -31,12 +31,12 @@ public class MessageHandler extends Thread {
     @SneakyThrows
     public String receiveMessage() {
         System.out.println("RECEBENDO MENSAGEM");
-        String line = this.input.readLine();
+        String line;
         StringBuilder builder = new StringBuilder();
-        while (this.input.ready()){
-            builder.append(line);
+        do {
             line = this.input.readLine();
-        }
+            builder.append(line).append('\n');
+        } while (this.input.ready());
         System.out.println("RECEBI MENSAGEM");
         return builder.toString();
     }
