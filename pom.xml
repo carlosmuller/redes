@@ -59,6 +59,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>2.22.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.vidageek</groupId>
+            <artifactId>mirror</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
         </dependency>
         <!-- end of tests dependecies -->
 

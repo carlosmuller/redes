@@ -1,6 +1,7 @@
 package com.mullercarlos.message;
 
-import org.junit.jupiter.api.Test;
+import com.mullercarlos.utils.Reflection;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -14,26 +15,44 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MessageHandlerTest {
+    Reflection reflection = new Reflection();
+    private Socket socket;
 
-
-    @Test
-    void sendMessage() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException {
         OutputStream outputStream = mock(OutputStream.class);
-        InputStream mock = mock(InputStream.class);
+        InputStream inputStream = mock(InputStream.class);
 
-        Socket socket = mock(Socket.class);
+        socket = mock(Socket.class);
         when(socket.getOutputStream()).thenReturn(outputStream);
-        when(socket.getInputStream()).thenReturn(mock);
-
-        MessageHandler messageHandler = spy(new MessageHandler(socket));
-        verify(socket, times(1)).getOutputStream();
-        verify(socket, times(1)).getInputStream();
-
-        messageHandler.sendMessage(SIGNIN);
-//        verify(messageHandler.output, times(1)).print(SIGNINJSON);
+        when(socket.getInputStream()).thenReturn(inputStream);
     }
 
     @Test
-    void receiveMessage() {
+    void MessageHandler__should_build_correctly() throws IOException {
+        MessageHandler messageHandler = spy(new MessageHandler(socket));
+        verify(socket, times(1)).getOutputStream();
+        verify(socket, times(1)).getInputStream();
+    }
+
+    @Test
+    void sendMessage_should_serialize_message_into_json() throws IOException {
+        MessageHandler messageHandler = spy(new MessageHandler(socket));
+        PrintWriter out = mock(PrintWriter.class);
+        reflection.setField(messageHandler, "output", out);
+        messageHandler.sendMessage(SIGNIN);
+        verify(messageHandler.output, times(1)).println(SIGNINJSON);
+    }
+
+    @Test
+    void receiveMessage__should_serialize_json_into_message() throws IOException {
+        MessageHandler messageHandler = spy(new MessageHandler(socket));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(SIGNINJSON);
+
+        Message message = messageHandler.receiveMessage();
+        verify(messageHandler.input, atLeastOnce()).readLine();
+        assertEquals(SIGNIN, message);
     }
 }

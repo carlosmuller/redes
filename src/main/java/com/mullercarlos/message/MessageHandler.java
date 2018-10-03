@@ -9,8 +9,8 @@ import java.net.Socket;
 public class MessageHandler extends Thread {
 
     private final Socket socket;
-    private final BufferedReader input;
-    private final PrintWriter output;
+    protected final BufferedReader input;
+    protected final PrintWriter output;
 
     public MessageHandler(Socket socket) throws IOException {
         this.socket = socket;
@@ -33,13 +33,15 @@ public class MessageHandler extends Thread {
     public Message receiveMessage() {
         System.out.println("RECEBENDO MENSAGEM");
         String line;
-        StringBuilder json = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         do {
             line = this.input.readLine();
-            json.append(line);
+            builder.append(line);
         } while (this.input.ready());
         System.out.println("RECEBI MENSAGEM");
-        return JSONUtils.deserialize(json.toString(), Message.class);
+        String jsonString = builder.toString();
+        Message deserialize = JSONUtils.deserialize(jsonString, Message.class);
+        return (Message) JSONUtils.deserialize(jsonString, deserialize.getType().getClazz());
     }
 
     public void close() throws IOException {

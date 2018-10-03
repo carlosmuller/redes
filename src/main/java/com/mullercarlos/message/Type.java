@@ -1,5 +1,15 @@
 package com.mullercarlos.message;
 
 public enum Type {
-    HEALTH, START, STOP, FOLLOW, SIGNIN
+    HEALTH(Message.class), START(Message.class), STOP(Message.class), FOLLOW(Message.class), SIGNIN(Signin.class);
+
+    private final Class<? extends Message> clazz;
+
+    Type(Class<? extends Message> clazz) {
+        this.clazz = clazz;
+    }
+
+    public Class getClazz() {
+        return clazz;
+    }
 }
