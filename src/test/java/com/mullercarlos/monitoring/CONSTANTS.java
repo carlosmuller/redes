@@ -1,7 +1,7 @@
-package com.mullercarlos;
+package com.mullercarlos.monitoring;
 
-import com.mullercarlos.message.Signin;
-import com.mullercarlos.models.Service;
+import com.mullercarlos.monitoring.message.Signin;
+import com.mullercarlos.monitoring.models.Service;
 
 import java.util.List;
 

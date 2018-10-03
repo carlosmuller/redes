@@ -1,6 +1,6 @@
-package com.mullercarlos.message;
+package com.mullercarlos.monitoring.message;
 
-import com.mullercarlos.utils.JSONUtils;
+import com.mullercarlos.monitoring.utils.JSONUtils;
 import lombok.*;
 
 import java.io.*;
@@ -24,21 +24,21 @@ public class MessageHandler extends Thread {
     }
 
     public void sendMessage(Message message) {
-        System.out.println("MANDANDO MESAGEM");
+//        System.out.println("MANDANDO MESAGEM");
         this.output.println(JSONUtils.serialize(message));
-        System.out.println("MANDEI MESAGEM");
+//        System.out.println("MANDEI MESAGEM");
     }
 
     @SneakyThrows
     public Message receiveMessage() {
-        System.out.println("RECEBENDO MENSAGEM");
+//        System.out.println("RECEBENDO MENSAGEM");
         String line;
         StringBuilder builder = new StringBuilder();
         do {
             line = this.input.readLine();
             builder.append(line);
         } while (this.input.ready());
-        System.out.println("RECEBI MENSAGEM");
+//        System.out.println("RECEBI MENSAGEM");
         String jsonString = builder.toString();
         Message deserialize = JSONUtils.deserialize(jsonString, Message.class);
         return (Message) JSONUtils.deserialize(jsonString, deserialize.getType().getClazz());

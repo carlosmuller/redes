@@ -1,7 +1,7 @@
-package com.mullercarlos.utils;
+package com.mullercarlos.monitoring.utils;
 
-import com.mullercarlos.message.Signin;
-import com.mullercarlos.models.Service;
+import com.mullercarlos.monitoring.message.Signin;
+import com.mullercarlos.monitoring.models.Service;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

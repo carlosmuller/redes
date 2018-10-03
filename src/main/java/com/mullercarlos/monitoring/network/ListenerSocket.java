@@ -1,7 +1,7 @@
-package com.mullercarlos.network;
+package com.mullercarlos.monitoring.network;
 
+import com.mullercarlos.monitoring.message.MessageHandler;
 import lombok.*;
-import com.mullercarlos.message.MessageHandler;
 
 import java.io.IOException;
 import java.net.*;

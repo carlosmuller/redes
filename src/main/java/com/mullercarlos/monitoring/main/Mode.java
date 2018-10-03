@@ -1,10 +1,13 @@
-package com.mullercarlos.main;
+package com.mullercarlos.monitoring.main;
 
-import com.mullercarlos.cli.CliArgs;
-import com.mullercarlos.runners.RunnerInterface;
-import com.mullercarlos.runners.client.Client;
-import com.mullercarlos.runners.server.Server;
+import com.mullercarlos.monitoring.cli.CliArgs;
+import com.mullercarlos.monitoring.runners.RunnerInterface;
+import com.mullercarlos.monitoring.runners.client.Client;
+import com.mullercarlos.monitoring.runners.server.Server;
 
+/**
+ * Enum responsavel para representação dos modos de execução do programa
+ */
 public enum Mode {
     server(){
         @Override

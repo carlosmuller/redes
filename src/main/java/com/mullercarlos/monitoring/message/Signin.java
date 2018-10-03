@@ -1,6 +1,6 @@
-package com.mullercarlos.message;
+package com.mullercarlos.monitoring.message;
 
-import com.mullercarlos.models.Service;
+import com.mullercarlos.monitoring.models.Service;
 import lombok.*;
 
 import java.util.List;

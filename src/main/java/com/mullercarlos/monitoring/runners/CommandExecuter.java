@@ -1,4 +1,4 @@
-package com.mullercarlos.runners;
+package com.mullercarlos.monitoring.runners;
 
 
 import lombok.RequiredArgsConstructor;

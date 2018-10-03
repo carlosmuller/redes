@@ -1,6 +1,6 @@
-package com.mullercarlos.runners;
+package com.mullercarlos.monitoring.runners;
 
-import com.mullercarlos.cli.CliArgs;
+import com.mullercarlos.monitoring.cli.CliArgs;
 import lombok.ToString;
 
 @ToString

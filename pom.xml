@@ -107,7 +107,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        com.mullercarlos.main.Main
+                                        com.mullercarlos.monitoring.main.Main
                                     </mainClass>
                                 </manifest>
                             </archive>

@@ -1,4 +1,4 @@
-package com.mullercarlos.message;
+package com.mullercarlos.monitoring.message;
 
 import lombok.*;
 

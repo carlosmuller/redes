@@ -1,4 +1,4 @@
-package com.mullercarlos.utils;
+package com.mullercarlos.monitoring.utils;
 
 import com.google.gson.*;
 

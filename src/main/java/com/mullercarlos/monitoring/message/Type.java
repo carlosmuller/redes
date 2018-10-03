@@ -1,4 +1,4 @@
-package com.mullercarlos.message;
+package com.mullercarlos.monitoring.message;
 
 public enum Type {
     HEALTH(Message.class), START(Message.class), STOP(Message.class), FOLLOW(Message.class), SIGNIN(Signin.class);

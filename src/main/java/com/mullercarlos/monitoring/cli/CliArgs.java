@@ -1,13 +1,16 @@
-package com.mullercarlos.cli;
+package com.mullercarlos.monitoring.cli;
 
 import lombok.*;
-import com.mullercarlos.main.Mode;
+import com.mullercarlos.monitoring.main.Mode;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
-@ToString
-@EqualsAndHashCode
-@Data
+/**
+ * Classe respnsável por representar as opções aceitas na linha de comando
+ */
+@ToString//gera o to string com os atributos da classe
+@EqualsAndHashCode//gera o equals e hash code
+@Data// adicona getters and setters para atributos em tempo de compilação
 @CommandLine.Command(headerHeading = "Um programa para monitorar recursos e serviços\n",requiredOptionMarker = '*', abbreviateSynopsis = true)
 public class CliArgs {
 

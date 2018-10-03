@@ -1,4 +1,4 @@
-package com.mullercarlos.models;
+package com.mullercarlos.monitoring.models;
 
 import lombok.*;
 

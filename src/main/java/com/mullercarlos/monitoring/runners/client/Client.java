@@ -1,15 +1,14 @@
-package com.mullercarlos.runners.client;
+package com.mullercarlos.monitoring.runners.client;
 
-import com.mullercarlos.cli.CliArgs;
-import com.mullercarlos.message.*;
-import com.mullercarlos.models.Service;
-import com.mullercarlos.runners.RunnerInterface;
+import com.mullercarlos.monitoring.cli.CliArgs;
+import com.mullercarlos.monitoring.message.*;
+import com.mullercarlos.monitoring.models.Service;
+import com.mullercarlos.monitoring.runners.RunnerInterface;
 import lombok.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.*;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @ToString(callSuper = true)
 public class Client extends RunnerInterface {
