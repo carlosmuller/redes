@@ -1,12 +1,14 @@
 package com.mullercarlos.runners.client;
 
 import com.mullercarlos.cli.CliArgs;
-import com.mullercarlos.message.MessageHandler;
+import com.mullercarlos.message.*;
+import com.mullercarlos.models.Service;
 import com.mullercarlos.runners.RunnerInterface;
 import lombok.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.stream.IntStream;
 
 @ToString(callSuper = true)
@@ -24,8 +26,12 @@ public class Client extends RunnerInterface {
         try {
             Socket socket = new Socket(split[0], Integer.parseInt(split[1]));
             @Cleanup MessageHandler messageHandler = new MessageHandler(socket);
-            messageHandler.sendMessage("Cliente [0] huias huias huias\n\n\n\n\n uhashuiashiudasiudh \n ashudiashdiuashdiuasd");
-            String message = messageHandler.receiveMessage();
+            /**
+             * todo preciso colocar um server para ouvir as chamadas do servidor
+             */
+            Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()));
+            messageHandler.sendMessage(SIGNIN);
+            Message message = messageHandler.receiveMessage();
             System.out.println("RECEBI A MENSAGEM :  " + message);
         } catch (UnknownHostException e) {
             e.printStackTrace();

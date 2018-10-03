@@ -4,6 +4,8 @@ import lombok.*;
 
 @RequiredArgsConstructor
 @Builder
+@EqualsAndHashCode
+@ToString
 public class Service {
 
     private final String name;

@@ -1,5 +1,6 @@
 package com.mullercarlos.message;
 
+import com.mullercarlos.utils.JSONUtils;
 import lombok.*;
 
 import java.io.*;
@@ -18,27 +19,27 @@ public class MessageHandler extends Thread {
     }
 
     public void handle() {
-        String message = receiveMessage().toUpperCase();
+        Message message = receiveMessage();
         sendMessage(message);
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(Message message) {
         System.out.println("MANDANDO MESAGEM");
-        this.output.println(message + "\n");
+        this.output.println(JSONUtils.serialize(message));
         System.out.println("MANDEI MESAGEM");
     }
 
     @SneakyThrows
-    public String receiveMessage() {
+    public Message receiveMessage() {
         System.out.println("RECEBENDO MENSAGEM");
         String line;
-        StringBuilder builder = new StringBuilder();
+        StringBuilder json = new StringBuilder();
         do {
             line = this.input.readLine();
-            builder.append(line).append('\n');
+            json.append(line);
         } while (this.input.ready());
         System.out.println("RECEBI MENSAGEM");
-        return builder.toString();
+        return JSONUtils.deserialize(json.toString(), Message.class);
     }
 
     public void close() throws IOException {
