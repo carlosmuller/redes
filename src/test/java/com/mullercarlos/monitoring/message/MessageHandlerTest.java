@@ -56,4 +56,17 @@ class MessageHandlerTest {
         verify(messageHandler.input, atLeastOnce()).readLine();
         assertEquals(SIGNIN, message);
     }
+
+    @Test
+    void close__should_call_close_of_input_out_put_socket() throws IOException {
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        PrintWriter out = mock(PrintWriter.class);
+        reflection.setField(messageHandler, "output", out);
+        messageHandler.close();
+        verify(messageHandler.input, only()).close();
+        verify(messageHandler.output, only()).close();
+        verify(messageHandler.socket, times(1)).close();
+    }
 }

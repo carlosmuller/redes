@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class MessageHandler extends Thread {
 
-    private final Socket socket;
+    protected final Socket socket;
     protected final BufferedReader input;
     protected final PrintWriter output;
 
