@@ -2,7 +2,7 @@ package com.mullercarlos.monitoring.runners.server;
 
 import com.mullercarlos.monitoring.cli.CliArgs;
 import com.mullercarlos.monitoring.message.MessageHandler;
-import com.mullercarlos.monitoring.models.Client;
+import com.mullercarlos.monitoring.models.ClientModel;
 import com.mullercarlos.monitoring.runners.RunnerInterface;
 import lombok.*;
 
@@ -17,7 +17,7 @@ public class Server extends RunnerInterface {
         super(args);
     }
 
-    private static final ConcurrentHashMap<String, Client> clientKeys = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, ClientModel> clientKeys = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -41,8 +41,8 @@ public class Server extends RunnerInterface {
         new Thread(() -> {
             while (true) {
                 System.out.println("Clientes:");
-                clientKeys.forEach((s, client) -> {
-                    System.out.println("######client#####\nAuthkey[" + s + "]\nclient\n" + client.toString() + "#######endofclient####");
+                clientKeys.forEach((s, clientModel) -> {
+                    System.out.println("######clientModel#####\nAuthkey[" + s + "]\nclientModel\n" + clientModel.toString() + "#######endofclient####");
                 });
                 try {
                     Thread.sleep(500);

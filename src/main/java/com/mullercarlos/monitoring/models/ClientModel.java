@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class Client {
+public class ClientModel {
     private List<Service> serviceList;
     private String authKey;
     private LocalDateTime lastHealthCheck;

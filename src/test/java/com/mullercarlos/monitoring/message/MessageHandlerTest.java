@@ -1,6 +1,6 @@
 package com.mullercarlos.monitoring.message;
 
-import com.mullercarlos.monitoring.models.Client;
+import com.mullercarlos.monitoring.models.ClientModel;
 import com.mullercarlos.monitoring.utils.Reflection;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,7 +78,7 @@ class MessageHandlerTest {
         Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
         when(socket.getInetAddress()).thenReturn(inet4Address);
 
-        HashMap<String, Client> clients = new HashMap<>();
+        HashMap<String, ClientModel> clients = new HashMap<>();
         MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
@@ -88,10 +88,10 @@ class MessageHandlerTest {
         messageHandler.handle();
         assertTrue(clients.containsKey(signin.getAuthKey()));
 
-        Client client = clients.get(signin.getAuthKey());
-        assertEquals(client.getPort(), signin.getPortListener());
-        assertEquals(client.getServiceList(), signin.getServiceList());
-        assertEquals(client.getIp(), client.getIp());
+        ClientModel clientModel = clients.get(signin.getAuthKey());
+        assertEquals(clientModel.getPort(), signin.getPortListener());
+        assertEquals(clientModel.getServiceList(), signin.getServiceList());
+        assertEquals(clientModel.getIp(), clientModel.getIp());
 
         verify(messageHandler, times(1)).sendMessage(new Ok("Consegui te cadstrar com sucesso", signin.getAuthKey()));
     }
@@ -102,9 +102,9 @@ class MessageHandlerTest {
         when(socket.getInetAddress()).thenReturn(inet4Address);
         Signin signin = SIGNIN;
 
-        HashMap<String, Client> clients = new HashMap<>();
-        Client client1 = Client.builder().ip("127.0.0.2").authKey(signin.getAuthKey()).build();
-        clients.put(signin.getAuthKey(), client1);
+        HashMap<String, ClientModel> clients = new HashMap<>();
+        ClientModel clientModel1 = ClientModel.builder().ip("127.0.0.2").authKey(signin.getAuthKey()).build();
+        clients.put(signin.getAuthKey(), clientModel1);
         MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
@@ -114,8 +114,8 @@ class MessageHandlerTest {
         messageHandler.handle();
         assertTrue(clients.containsKey(signin.getAuthKey()));
 
-        Client client = clients.get(signin.getAuthKey());
-        assertEquals(client, client1);
+        ClientModel clientModel = clients.get(signin.getAuthKey());
+        assertEquals(clientModel, clientModel1);
         verify(messageHandler, times(1)).sendMessage(new Failed("not allowed"));
     }
 }

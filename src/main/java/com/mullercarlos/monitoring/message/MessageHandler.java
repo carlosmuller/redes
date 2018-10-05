@@ -1,6 +1,6 @@
 package com.mullercarlos.monitoring.message;
 
-import com.mullercarlos.monitoring.models.Client;
+import com.mullercarlos.monitoring.models.ClientModel;
 import com.mullercarlos.monitoring.utils.JSONUtils;
 import lombok.*;
 
@@ -30,18 +30,18 @@ public class MessageHandler extends Thread {
         Message message = receiveMessage();
         if(message instanceof Signin){
             Signin signin = (Signin) message;
-            Client client = Client.builder().authKey(signin.getAuthKey()).serviceList(signin.getServiceList()).port(signin.getPortListener())
+            ClientModel clientModel = ClientModel.builder().authKey(signin.getAuthKey()).serviceList(signin.getServiceList()).port(signin.getPortListener())
                     .ip(socket.getInetAddress()
                             .getHostAddress()).build();
-            if(clients.containsKey(client.getAuthKey())){
-                Client existent = (Client)clients.get(client.getAuthKey());
-                if(!existent.equals(client)){
+            if(clients.containsKey(clientModel.getAuthKey())){
+                ClientModel existent = (ClientModel)clients.get(clientModel.getAuthKey());
+                if(!existent.equals(clientModel)){
                     sendMessage(new Failed("not allowed"));
                     return;
                 }
             }
-            clients.putIfAbsent(client.getAuthKey(), client);
-            sendMessage(new Ok("Consegui te cadstrar com sucesso", client.getAuthKey()));
+            clients.putIfAbsent(clientModel.getAuthKey(), clientModel);
+            sendMessage(new Ok("Consegui te cadstrar com sucesso", clientModel.getAuthKey()));
         }
     }
 
