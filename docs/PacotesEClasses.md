@@ -41,7 +41,7 @@ A classe cliente abre uma thread para ficar ouvindo mensagens do servidor como: 
 Outra thread é para tempos em tempos enviar mensagem ao servidor mandado status dos serviços e dele. 
 
 ## A classe servidor
-Ela abre duas threads uma para ouvir mensagens dos clientes. e a outra para mostrar na linha de comando os clientes dela e os status.
+Ela abre duas threads uma para ouvir mensagens dos clientes. e a outra para mostrar na linha de comando os clientes dele e os status.
  
 
 # **_utils_**

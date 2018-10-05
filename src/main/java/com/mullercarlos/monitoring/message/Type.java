@@ -1,7 +1,7 @@
 package com.mullercarlos.monitoring.message;
 
 public enum Type {
-    HEALTH(Message.class), START(Message.class), STOP(Message.class), FOLLOW(Message.class), SIGNIN(Signin.class);
+    HEALTH(Message.class), OK(Ok.class) , START(Message.class), STOP(Message.class), FOLLOW(Message.class), SIGNIN(Signin.class);
 
     private final Class<? extends Message> clazz;
 

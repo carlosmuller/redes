@@ -1,5 +1,6 @@
 package com.mullercarlos.monitoring.message;
 
+import com.mullercarlos.monitoring.models.Client;
 import com.mullercarlos.monitoring.utils.Reflection;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,7 +8,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
+import java.util.HashMap;
 
 import static com.mullercarlos.monitoring.CONSTANTS.SIGNIN;
 import static com.mullercarlos.monitoring.CONSTANTS.SIGNINJSON;
@@ -27,6 +29,7 @@ class MessageHandlerTest {
         socket = mock(Socket.class);
         when(socket.getOutputStream()).thenReturn(outputStream);
         when(socket.getInputStream()).thenReturn(inputStream);
+
     }
 
     @Test
@@ -37,7 +40,7 @@ class MessageHandlerTest {
     }
 
     @Test
-    void sendMessage_should_serialize_message_into_json() throws IOException {
+    void sendMessage__should_serialize_message_into_json() throws IOException {
         MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
         PrintWriter out = mock(PrintWriter.class);
         reflection.setField(messageHandler, "output", out);
@@ -68,5 +71,51 @@ class MessageHandlerTest {
         verify(messageHandler.input, only()).close();
         verify(messageHandler.output, only()).close();
         verify(messageHandler.socket, times(1)).close();
+    }
+
+    @Test
+    void handle__should_add_client_to_clients_list() throws IOException {
+        Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
+        when(socket.getInetAddress()).thenReturn(inet4Address);
+
+        HashMap<String, Client> clients = new HashMap<>();
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(SIGNINJSON);
+        Signin signin = SIGNIN;
+
+        messageHandler.handle();
+        assertTrue(clients.containsKey(signin.getAuthKey()));
+
+        Client client = clients.get(signin.getAuthKey());
+        assertEquals(client.getPort(), signin.getPortListener());
+        assertEquals(client.getServiceList(), signin.getServiceList());
+        assertEquals(client.getIp(), client.getIp());
+
+        verify(messageHandler, times(1)).sendMessage(new Ok("Consegui te cadstrar com sucesso", signin.getAuthKey()));
+    }
+
+    @Test
+    void handle__should_block_if_authKey_is_equal_but_clients_is_not() throws IOException {
+        Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
+        when(socket.getInetAddress()).thenReturn(inet4Address);
+        Signin signin = SIGNIN;
+
+        HashMap<String, Client> clients = new HashMap<>();
+        Client client1 = Client.builder().ip("127.0.0.2").authKey(signin.getAuthKey()).build();
+        clients.put(signin.getAuthKey(), client1);
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(SIGNINJSON);
+
+
+        messageHandler.handle();
+        assertTrue(clients.containsKey(signin.getAuthKey()));
+
+        Client client = clients.get(signin.getAuthKey());
+        assertEquals(client, client1);
+        verify(messageHandler, times(1)).sendMessage(new Failed("not allowed"));
     }
 }

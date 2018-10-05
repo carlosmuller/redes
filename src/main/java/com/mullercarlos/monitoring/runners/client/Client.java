@@ -28,10 +28,9 @@ public class Client extends RunnerInterface {
             /**
              * todo preciso colocar um server para ouvir as chamadas do servidor
              */
-            Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()));
+            Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), 8080);
             messageHandler.sendMessage(SIGNIN);
-            Message message = messageHandler.receiveMessage();
-            System.out.println("RECEBI A MENSAGEM :  " + message);
+            System.out.println(messageHandler.receiveMessage());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
