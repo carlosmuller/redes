@@ -27,6 +27,12 @@
             <version>2.8.5</version>
         </dependency>
 
+        <dependency><!-- facilita leitura de uso de cpu ram e disco, achei aqui https://stackoverflow.com/a/3098296-->
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>3.8.4</version>
+        </dependency>
+
 
         <!-- Tests dependecies -->
         <dependency>

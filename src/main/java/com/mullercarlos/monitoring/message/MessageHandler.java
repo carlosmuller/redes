@@ -2,7 +2,7 @@ package com.mullercarlos.monitoring.message;
 
 import com.mullercarlos.monitoring.models.ClientModel;
 import com.mullercarlos.monitoring.utils.JSONUtils;
-import lombok.*;
+import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.Socket;
@@ -26,7 +26,7 @@ public class MessageHandler extends Thread {
         this.clients = client;
     }
 
-    public void handle() {
+    void handle() {
         Message message = receiveMessage();
         if(message instanceof Signin){
             Signin signin = (Signin) message;
@@ -42,6 +42,21 @@ public class MessageHandler extends Thread {
             }
             clients.putIfAbsent(clientModel.getAuthKey(), clientModel);
             sendMessage(new Ok("Consegui te cadstrar com sucesso", clientModel.getAuthKey()));
+            return;
+        }
+        if (message instanceof Health){
+            Health healthUpdate = ((Health) message);
+            if(clients.containsKey(healthUpdate.getAuthKey())){
+                ClientModel signedIn = (ClientModel)clients.get(healthUpdate.getAuthKey());
+                if(!signedIn.getIp().equals(socket.getInetAddress().getHostAddress())){
+                    sendMessage(new Failed("not allowed"));
+                    return;
+                }
+                signedIn.updateHealth(healthUpdate);
+                sendMessage(new Ok("Health updated", healthUpdate.getAuthKey()));
+            }else{
+                sendMessage(new Failed("You should send signin first!"));
+            }
         }
     }
 
