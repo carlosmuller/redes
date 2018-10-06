@@ -42,7 +42,7 @@ public class Server extends RunnerInterface {
             while (true) {
                 System.out.println("Clientes:");
                 clientKeys.forEach((s, clientModel) -> {
-                    System.out.println("######clientModel#####\nAuthkey[" + s + "]\nclientModel\n" + clientModel.toString() + "#######endofclient####");
+                    System.out.println("######clientModel#####\nAuthkey[" + s + "]\nclientModel\n" + clientModel.toString() + "\n#######endofclient####");
                 });
                 try {
                     Thread.sleep(500);

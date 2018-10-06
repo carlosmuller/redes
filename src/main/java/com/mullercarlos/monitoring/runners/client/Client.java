@@ -5,6 +5,8 @@ import com.mullercarlos.monitoring.message.*;
 import com.mullercarlos.monitoring.models.Service;
 import com.mullercarlos.monitoring.runners.RunnerInterface;
 import lombok.*;
+import oshi.SystemInfo;
+import oshi.hardware.GlobalMemory;
 
 import java.io.IOException;
 import java.net.*;
@@ -30,29 +32,53 @@ public class Client extends RunnerInterface {
              */
             Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), 8080);
             messageHandler.sendMessage(SIGNIN);
-            System.out.println(messageHandler.receiveMessage());
+            Message response = messageHandler.receiveMessage();
+            if (args.isVerbose()) {
+                System.out.println(response);
+            }
+        } catch (IOException e) {
+//            e.printStackTrace();
+            if (e instanceof ConnectException) {
+                System.out.println("Como não me cadastrei no servidor vou parar, não consegui conectar no servidor");
+            } else {
+                e.printStackTrace();
+                System.out.println("contacte o mantenedor do software");
+            }
+            return;
+        }
 
-            //Thread que atualiza o servidor com as informações a cada minuto
-            new Thread(() -> {
-                while (true){
+        //Thread que atualiza o servidor com as informações a cada minuto
+        new Thread(() -> {
+            int failed = 0;
+            while (true) {
+                try {
+                    //https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java preciso fazer isso e montar um HEALTH
+                    SystemInfo si = new SystemInfo();
+                    GlobalMemory memory = si.getHardware().getMemory();
+                    double systemCpuLoad = si.getHardware().getProcessor().getSystemCpuLoad();
+                    long available = memory.getAvailable();
+                    long total = memory.getTotal();
+                    Health health = new Health(systemCpuLoad * 100 + "%", ((total - available) + "/" + total), "", "authKey");
+                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])));
+                    handler.sendMessage(health);
+                    //SHOULD see if failed
+                    System.out.println(handler.receiveMessage());
+                    Thread.sleep(6000);
+                    failed = 0;
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                    failed++;
+                    if (failed >= 10) {
+                        System.out.println("Muitas falhas ao se comunicar com o serivdor o programa cliente vai para!");
+                        System.exit(123);
+                    }
                     try {
-                        //https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java preciso fazer isso e montar um HEALTH
-                        @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])));
-                        handler.sendMessage(SIGNIN);
-                        System.out.println(handler.receiveMessage());
                         Thread.sleep(6000);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException e1) {
                     }
                 }
-            }).start();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            }
+        }).start();
 
     }
 
