@@ -1,7 +1,13 @@
 package com.mullercarlos.monitoring.message;
 
 public enum Type {
-    HEALTH(Health.class), FAILED(Failed.class), OK(Ok.class) , START(Message.class), STOP(Message.class), FOLLOW(Message.class), SIGNIN(Signin.class);
+    HEALTH(Health.class),
+    SIGNIN(Signin.class),
+    FAILED(Failed.class),
+    OK(Ok.class),
+    START(Message.class),
+    STOP(Message.class),
+    FOLLOW(Message.class);
 
     private final Class<? extends Message> clazz;
 

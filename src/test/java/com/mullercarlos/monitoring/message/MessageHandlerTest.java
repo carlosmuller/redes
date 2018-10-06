@@ -1,14 +1,12 @@
 package com.mullercarlos.monitoring.message;
 
 import com.mullercarlos.monitoring.models.ClientModel;
-import com.mullercarlos.monitoring.utils.*;
+import com.mullercarlos.monitoring.utils.Reflection;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
 
 import java.io.*;
 import java.net.*;
