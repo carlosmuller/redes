@@ -1,18 +1,20 @@
 package com.mullercarlos.monitoring.message;
 
 import com.mullercarlos.monitoring.models.ClientModel;
-import com.mullercarlos.monitoring.utils.Reflection;
+import com.mullercarlos.monitoring.utils.*;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import oshi.SystemInfo;
+import oshi.hardware.GlobalMemory;
 
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
-import static com.mullercarlos.monitoring.CONSTANTS.SIGNIN;
-import static com.mullercarlos.monitoring.CONSTANTS.SIGNINJSON;
+import static com.mullercarlos.monitoring.CONSTANTS.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -73,6 +75,11 @@ class MessageHandlerTest {
         verify(messageHandler.socket, times(1)).close();
     }
 
+    /**
+     * Testes para verificar comunicação correta do SIGNIN
+     * @throws IOException
+     */
+
     @Test
     void handle__should_add_client_to_clients_list() throws IOException {
         Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
@@ -118,4 +125,70 @@ class MessageHandlerTest {
         assertEquals(clientModel, clientModel1);
         verify(messageHandler, times(1)).sendMessage(new Failed("not allowed"));
     }
+
+    /**
+     * FIM Testes para verificar comunicação correta do SIGNIN
+     * @throws IOException
+     */
+
+    /**
+     * Testes para verificar comunicação correta do HEALTH
+     * @throws IOException
+     */
+    @Test
+    @SneakyThrows
+    void handle__should_send_ok_when_processed_correctly() {
+        Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
+        when(socket.getInetAddress()).thenReturn(inet4Address);
+        HashMap<String, ClientModel> clients = new HashMap<>();
+        String authKey = "authKey";
+        ClientModel clientModel = ClientModel.builder().ip(inet4Address.getHostAddress()).authKey(authKey).build();
+        clients.put(authKey, clientModel);
+
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(HEALTHJSON);
+        messageHandler.handle();
+
+        verify(messageHandler, times(1)).sendMessage(new Ok("Health updated", authKey));
+    }
+
+    @Test
+    @SneakyThrows
+    void handle__should_block_if_client_is_not_signed_in() {
+        HashMap<String, ClientModel> clients = new HashMap<>();
+
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(HEALTHJSON);
+        messageHandler.handle();
+        verify(messageHandler, times(1)). sendMessage(new Failed("You should send signin first!"));
+    }
+
+    @Test
+    @SneakyThrows
+    void handle__should_block_if_client_has_diferent_ip_from_table() {
+        Inet4Address inet4Address = (Inet4Address) Inet4Address.getLocalHost();
+        when(socket.getInetAddress()).thenReturn(inet4Address);
+        HashMap<String, ClientModel> clients = new HashMap<>();
+        String authKey = "authKey";
+        ClientModel clientModel = ClientModel.builder().ip("1.1.1.1").authKey(authKey).build();
+        clients.put(authKey, clientModel);
+
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        BufferedReader input = mock(BufferedReader.class);
+        reflection.setField(messageHandler, "input", input);
+        when(input.readLine()).thenReturn(HEALTHJSON);
+        messageHandler.handle();
+
+        verify(messageHandler, times(1)).sendMessage(new Failed("not allowed"));
+
+    }
+    /**
+     * FIM Testes para verificar comunicação correta do HEALTH
+     * @throws IOException
+     */
+
 }

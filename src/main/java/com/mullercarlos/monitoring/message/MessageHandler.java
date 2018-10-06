@@ -56,6 +56,7 @@ public class MessageHandler extends Thread {
                 sendMessage(new Ok("Health updated", healthUpdate.getAuthKey()));
             }else{
                 sendMessage(new Failed("You should send signin first!"));
+                return;
             }
         }
     }
