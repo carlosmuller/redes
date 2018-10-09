@@ -31,7 +31,7 @@ public class Server extends RunnerInterface {
             while (true) {
                 try {
                     new Thread(
-                            new MessageHandler(serverSocket.accept(), clientKeys)
+                            new MessageHandler(serverSocket.accept(), clientKeys, args.isVerbose())
                     ).start();
                 } catch (IOException e) {
                     e.printStackTrace();

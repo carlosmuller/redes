@@ -24,20 +24,18 @@ public class Client extends RunnerInterface {
         String server = args.getServer();
         String[] split = server.split(":");
         System.out.println(split[0] + ":" + split[1]);
+        //primeira mensagem para cadastar o cliente no serivdor
         try {
             Socket socket = new Socket(split[0], Integer.parseInt(split[1]));
-            @Cleanup MessageHandler messageHandler = new MessageHandler(socket);
+            @Cleanup MessageHandler messageHandler = new MessageHandler(socket,args.isVerbose());
             /**
-             * todo preciso colocar um server para ouvir as chamadas do servidor
+             * TODO a way to add services to monitor
              */
             Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), 8080);
             messageHandler.sendMessage(SIGNIN);
+            //TODO TRATAR RESPOSTA
             Message response = messageHandler.receiveMessage();
-            if (args.isVerbose()) {
-                System.out.println(response);
-            }
         } catch (IOException e) {
-//            e.printStackTrace();
             if (e instanceof ConnectException) {
                 System.out.println("Como não me cadastrei no servidor vou parar, não consegui conectar no servidor");
             } else {
@@ -53,17 +51,18 @@ public class Client extends RunnerInterface {
             while (true) {
                 try {
                     //https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java preciso fazer isso e montar um HEALTH
+                    //TODO maybe put this on constructor of health messages?
                     SystemInfo si = new SystemInfo();
                     GlobalMemory memory = si.getHardware().getMemory();
                     double systemCpuLoad = si.getHardware().getProcessor().getSystemCpuLoad();
                     long available = memory.getAvailable();
                     long total = memory.getTotal();
                     Health health = new Health(systemCpuLoad * 100 + "%", ((total - available) + "/" + total), "", "authKey");
-                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])));
+                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), true);
                     handler.sendMessage(health);
                     //SHOULD see if failed
                     System.out.println(handler.receiveMessage());
-                    Thread.sleep(6000);
+                    Thread.sleep(60000);
                     failed = 0;
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
@@ -79,7 +78,26 @@ public class Client extends RunnerInterface {
                 }
             }
         }).start();
-
+        /**
+         * Thread que ouve as mensagens de start stop e follow
+         */
+        new Thread(() -> {
+            ServerSocket serverSocket = null;
+            try {
+                serverSocket = new ServerSocket(port);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+                try {
+                    new Thread(
+                            new MessageHandler(serverSocket.accept(), args.isVerbose())
+                    ).start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 

@@ -34,14 +34,14 @@ class MessageHandlerTest {
 
     @Test
     void MessageHandler__should_build_correctly() throws IOException {
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, true));
         verify(socket, times(1)).getOutputStream();
         verify(socket, times(1)).getInputStream();
     }
 
     @Test
     void sendMessage__should_serialize_message_into_json() throws IOException {
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, true));
         PrintWriter out = mock(PrintWriter.class);
         reflection.setField(messageHandler, "output", out);
         messageHandler.sendMessage(SIGNIN);
@@ -50,7 +50,7 @@ class MessageHandlerTest {
 
     @Test
     void receiveMessage__should_serialize_json_into_message() throws IOException {
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(SIGNINJSON);
@@ -62,7 +62,7 @@ class MessageHandlerTest {
 
     @Test
     void close__should_call_close_of_input_out_put_socket() throws IOException {
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         PrintWriter out = mock(PrintWriter.class);
@@ -84,7 +84,7 @@ class MessageHandlerTest {
         when(socket.getInetAddress()).thenReturn(inet4Address);
 
         HashMap<String, ClientModel> clients = new HashMap<>();
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(SIGNINJSON);
@@ -110,7 +110,7 @@ class MessageHandlerTest {
         HashMap<String, ClientModel> clients = new HashMap<>();
         ClientModel clientModel1 = ClientModel.builder().ip("127.0.0.2").authKey(signin.getAuthKey()).build();
         clients.put(signin.getAuthKey(), clientModel1);
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(SIGNINJSON);
@@ -143,7 +143,7 @@ class MessageHandlerTest {
         ClientModel clientModel = ClientModel.builder().ip(inet4Address.getHostAddress()).authKey(authKey).build();
         clients.put(authKey, clientModel);
 
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(HEALTHJSON);
@@ -157,7 +157,7 @@ class MessageHandlerTest {
     void handle__should_block_if_client_is_not_signed_in() {
         HashMap<String, ClientModel> clients = new HashMap<>();
 
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(HEALTHJSON);
@@ -175,7 +175,7 @@ class MessageHandlerTest {
         ClientModel clientModel = ClientModel.builder().ip("1.1.1.1").authKey(authKey).build();
         clients.put(authKey, clientModel);
 
-        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients));
+        MessageHandler messageHandler = Mockito.spy(new MessageHandler(socket, clients, true));
         BufferedReader input = mock(BufferedReader.class);
         reflection.setField(messageHandler, "input", input);
         when(input.readLine()).thenReturn(HEALTHJSON);
