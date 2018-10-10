@@ -5,9 +5,9 @@ public enum Type {
     SIGNIN(Signin.class),
     FAILED(Failed.class),
     OK(Ok.class),
-    START(Message.class),
-    STOP(Message.class),
-    FOLLOW(Message.class);
+    START(null),
+    STOP(null),
+    FOLLOW(Follow.class);
 
     private final Class<? extends Message> clazz;
 

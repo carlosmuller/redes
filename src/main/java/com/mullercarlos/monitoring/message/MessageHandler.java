@@ -6,7 +6,8 @@ import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.*;
+import java.nio.file.*;
+import java.util.Map;
 
 public class MessageHandler extends Thread {
 
@@ -50,7 +51,7 @@ public class MessageHandler extends Thread {
                     ClientModel existent = (ClientModel)clients.get(authKey);
                     if(!existent.equals(clientModel)){//bloqueia caso usem a a mesma chave mas são diferentes
                         if (verbose) {
-                            System.out.println(UUID + " - Os clientes eram diferentes então bloqueie existent["+existent+"] da mensagem["+clientModel+"]");
+                            System.out.println(UUID + " - BLOQUEADO - Os clientes eram diferentes então bloqueie existent["+existent+"] da mensagem["+clientModel+"]");
                         }
                         sendMessage(new Failed("not allowed"));
                         return;
@@ -65,25 +66,56 @@ public class MessageHandler extends Thread {
             }
             if (message instanceof Health){
                 Health healthUpdate = ((Health) message);
-                if(clients.containsKey(healthUpdate.getAuthKey())){//Para tratar essa mensagem o cliente tem que ter mandado antes a de SINGIN
-                    ClientModel signedIn = (ClientModel)clients.get(healthUpdate.getAuthKey());
+                String authKey = healthUpdate.getAuthKey();
+                if(clients.containsKey(authKey)){//Para tratar essa mensagem o cliente tem que ter mandado antes a de SINGIN
+                    ClientModel signedIn = (ClientModel)clients.get(authKey);
                     String hostAddress = socket.getInetAddress().getHostAddress();
                     if(!signedIn.getIp().equals(hostAddress)){// uma chave só pode responder para um ip
                         if (verbose) {
-                            System.out.println(UUID + " - BLOQUEADO - Os ips diferem para a chave["+healthUpdate.getAuthKey()+"] cadastrado["+signedIn.getIp()+"] da mensagem["+hostAddress+"]");
+                            System.out.println(UUID + " - BLOQUEADO - Os ips diferem para a chave["+ authKey +"] cadastrado["+signedIn.getIp()+"] da mensagem["+hostAddress+"]");
                         }
                         sendMessage(new Failed("not allowed"));
                         return;
                     }
                     signedIn.updateHealth(healthUpdate);
-                    sendMessage(new Ok("Health updated", healthUpdate.getAuthKey()));
+                    sendMessage(new Ok("Health updated", authKey));
                 }else{//Bloqueia caso não tenha ainda sido cadastrado
+                    if (verbose) {
+                        System.out.println(UUID + " - BLOQUEADO - Por não achar o a chame no mapa chave["+authKey+"]");
+                    }
                     sendMessage(new Failed("You should send signin first!"));
                     return;
                 }
             }
         }else{//Mensagens do servidor para o cliente
-
+            if(message instanceof Follow){
+                Follow follow = (Follow)message;
+                if(follow.getAuthKey().equals("")){
+                    String pathOfFile = follow.getPathOfFile();
+                    Path path = Paths.get(pathOfFile);
+                    if(!Files.isReadable(path)){
+                        if (verbose) {
+                            System.out.println(UUID + " - FALHO - Porque o arquivo não é legivel["+pathOfFile+"]");
+                        }
+                        sendMessage(new Failed("Can't read"));
+                        return;
+                    }
+                    try {
+                        BufferedReader bufferedReader = Files.newBufferedReader(path);
+                        while (true){
+                            String s = bufferedReader.readLine();
+                            if(s ==null){
+                                sleep(100);
+                            }
+                            this.output.println(s);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
