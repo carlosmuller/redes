@@ -102,14 +102,20 @@ public class MessageHandler extends Thread {
                     }
                     try {
                         BufferedReader bufferedReader = Files.newBufferedReader(path);
-                        while (true) {//atualiza o server a cada 100 milisegundos
+                        while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
                             String s = bufferedReader.readLine();
                             if (s == null) {
                                 sleep(100);
+                            }else{
+                                this.output.println(s);
+                                sleep(100);
                             }
-                            this.output.println(s);
-                            if (socket.isClosed()) return;
-                            else sleep(100);
+                            if (socket.isClosed()){
+                                if(verbose){
+                                    System.out.println(UUID + " - SUCCESS - conexão fechada do follow[" + pathOfFile + "]");
+                                }
+                                return;
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
