@@ -10,7 +10,7 @@ import oshi.hardware.GlobalMemory;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.List;
+import java.util.*;
 
 @ToString(callSuper = true)
 public class Client extends RunnerInterface {
@@ -27,14 +27,16 @@ public class Client extends RunnerInterface {
         //primeira mensagem para cadastar o cliente no serivdor
         try {
             Socket socket = new Socket(split[0], Integer.parseInt(split[1]));
-            @Cleanup MessageHandler messageHandler = new MessageHandler(socket,args.isVerbose());
+            String uuid = UUID.randomUUID().toString();
+            MessageHandler messageHandler = new MessageHandler(socket,args.isVerbose(), uuid);
             /**
              * TODO a way to add services to monitor
              */
-            Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), 8080);
+            Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), args.getPort());
             messageHandler.sendMessage(SIGNIN);
             //TODO TRATAR RESPOSTA
             Message response = messageHandler.receiveMessage();
+            messageHandler.close();
         } catch (IOException e) {
             if (e instanceof ConnectException) {
                 System.out.println("Como não me cadastrei no servidor vou parar, não consegui conectar no servidor");
@@ -58,7 +60,8 @@ public class Client extends RunnerInterface {
                     long available = memory.getAvailable();
                     long total = memory.getTotal();
                     Health health = new Health(systemCpuLoad * 100 + "%", ((total - available) + "/" + total), "", "authKey");
-                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), true);
+                    String uuid = UUID.randomUUID().toString();
+                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), args.isVerbose(), uuid);
                     handler.sendMessage(health);
                     //SHOULD see if failed
                     System.out.println(handler.receiveMessage());
@@ -90,14 +93,17 @@ public class Client extends RunnerInterface {
             }
             while (true) {
                 try {
-                    new Thread(
-                            new MessageHandler(serverSocket.accept(), args.isVerbose())
-                    ).start();
+                    String uuid = UUID.randomUUID().toString();
+                    Thread thread = new Thread(
+                            new MessageHandler(serverSocket.accept(), args.isVerbose(), uuid, "authKey"),
+                            "Thread de tratamento de mensagem - " + uuid
+                    );
+                    thread.start();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }, "Thread escuta mensagens do servidor").start();
     }
 
 

@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.*;
-import java.util.Map;
+import java.util.*;
 
 public class MessageHandler extends Thread {
 
@@ -16,19 +16,26 @@ public class MessageHandler extends Thread {
     protected final PrintWriter output;
     private final boolean verbose;
     private final String UUID;
+    private String authKey;
     private Map clients;
 
-    public MessageHandler(Socket socket, boolean verbose) throws IOException {
+    public MessageHandler(Socket socket, boolean verbose, String UUID) throws IOException {
         this.verbose = verbose;
         this.socket = socket;
         this.output = new PrintWriter(socket.getOutputStream(), true);
+        this.output.flush();
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.UUID = java.util.UUID.randomUUID().toString();
+        this.UUID = UUID;
     }
 
-    public MessageHandler(Socket socket, Map client, boolean verbose) throws IOException {
-        this(socket, verbose);
+    public MessageHandler(Socket socket, Map client, boolean verbose, String UUID) throws IOException {
+        this(socket, verbose, UUID);
         this.clients = client;
+    }
+
+    public MessageHandler(Socket accept, boolean verbose, String uuid, String authKey) throws IOException {
+        this(accept, verbose, uuid);
+        this.authKey = authKey;
     }
 
     void handle() {
@@ -90,7 +97,7 @@ public class MessageHandler extends Thread {
         } else {//Mensagens do servidor para o cliente
             if (message instanceof Follow) {
                 Follow follow = (Follow) message;
-                if (follow.getAuthKey().equals("")) {
+                if (follow.getAuthKey().equals(authKey)) {
                     String pathOfFile = follow.getPathOfFile();
                     Path path = Paths.get(pathOfFile);
                     if (!Files.isReadable(path)) {
@@ -100,27 +107,30 @@ public class MessageHandler extends Thread {
                         sendMessage(new Failed("Can't read"));
                         return;
                     }
+                    sendMessage(new Ok("Can't read", authKey));
+                    this.output.flush();
                     try {
                         BufferedReader bufferedReader = Files.newBufferedReader(path);
                         while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
-                            String s = bufferedReader.readLine();
-                            if (s == null) {
-                                sleep(100);
-                            }else{
-                                this.output.println(s);
-                                sleep(100);
-                            }
                             if (socket.isClosed()){
                                 if(verbose){
                                     System.out.println(UUID + " - SUCCESS - conexão fechada do follow[" + pathOfFile + "]");
                                 }
                                 return;
                             }
+                            String s = bufferedReader.readLine();
+                            if (s == null) {
+                                sleep(100);
+                            }else{
+                                this.output.println(s);
+                                this.output.flush();
+                                sleep(100);
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        return;
                     }
                 }
             }
@@ -147,6 +157,29 @@ public class MessageHandler extends Thread {
         message = (Message) JSONUtils.deserialize(jsonString, message.getType().getClazz());
         if (this.verbose) System.out.println(UUID + " - Recebi a mensagem : [" + message + "]");
         return message;
+    }
+
+    public void follow(Scanner scanner) {
+        Thread systemOutThread = new Thread(() -> {
+            do {
+                try {
+                    String s = this.input.readLine();
+                    if (s != null) System.out.println(s);
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } while (true);
+        }, "Impressao do follow");
+        systemOutThread.start();
+        String option;
+        do{
+            System.out.println("Pressione q para sair");
+            option = scanner.nextLine();
+        }while (!option.equals("q"));
+        systemOutThread.interrupt();
     }
 
     public void close() throws IOException {
