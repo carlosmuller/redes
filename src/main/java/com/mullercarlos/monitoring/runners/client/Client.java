@@ -87,12 +87,12 @@ public class Client extends RunnerInterface {
                     String uuid = UUID.randomUUID().toString();
                     @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), args.isVerbose(), uuid);
                     handler.sendMessage(health);
-                    //TODO should see if failed
-                    System.out.println(handler.receiveMessage());
+                    Message response = handler.receiveMessage();
+                    if(response instanceof Failed)
+                        throw new RuntimeException("Não consegui dar o update de health erro" + ((Failed) response).getMessage());
                     sleep(60000);
                     failed = 0;
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
+                } catch (IOException | InterruptedException | RuntimeException e) {
                     failed++;
                     if (failed >= 10) {
                         System.out.println("Muitas falhas ao se comunicar com o serivdor o programa cliente vai para!");
