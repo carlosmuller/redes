@@ -32,8 +32,23 @@ public class Server extends RunnerInterface {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if(!listenerThread.isAlive())return;
+        if (!listenerThread.isAlive()) return;
         System.out.println("Theread de escuta aberta ouvindo na porta " + args.getPort());
+        //Thread para checar se o cliente está saudavel a cada min
+        Thread threadToCheckHealthOfClients = new Thread(() -> {
+            while (true) {
+                if (!this.clientKeys.isEmpty()) {
+                    this.clientKeys.forEach((key, client) -> client.isHealth());
+                }
+                try {
+                    sleep(60000);
+                } catch (InterruptedException e) {
+                    if (Thread.interrupted()) return;
+                }
+            }
+
+        }, "Thread de checar se clientes estão bem");
+        threadToCheckHealthOfClients.start();
         //TODO talvez deixar isso mais claro?
         Scanner scanner = new Scanner(System.in);
         int option = -1;
@@ -47,7 +62,9 @@ public class Server extends RunnerInterface {
                 }
                 case 2: {
                     if (clientKeys.isEmpty()) System.out.println("Sem clientes");
-                    clientKeys.forEach((key, client) -> System.out.println("Chave [" + key + "]  status [" + client + "]"));
+                    clientKeys.forEach((key, client) -> {
+                        System.out.println("Chave [" + key + "]  status [" + client + "] isHealth[" + client.isHealth() + "]");
+                    });
                     break;
                 }
                 case 3: {
