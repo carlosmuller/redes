@@ -10,11 +10,10 @@ public class Main {
 
     public static void main(String[] args) {
         var cliArgs = new CliArgs();
-        /**
-         * A lib parsei as opções de linha de comando e popula a classe com os args passados
-         */
+
+        //A lib que le as opções de linha de comando e popula a classe com os args passados
         new CommandLine(cliArgs).parse(args);
-        //printa o
+        //printa opções
         if(cliArgs.isVerbose()) {
             System.out.println(cliArgs);
         }
@@ -23,6 +22,7 @@ public class Main {
             CommandLine.usage(new CliArgs(), System.out);
             return;
         }
+        //chama o modo efetivo cliente ou servidor
         cliArgs.getMode().getRunner(cliArgs).run();
     }
 }

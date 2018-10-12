@@ -5,7 +5,7 @@ import com.mullercarlos.monitoring.utils.JSONUtils;
 import lombok.SneakyThrows;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 
@@ -41,100 +41,133 @@ public class MessageHandler extends Thread {
     void handle() {
         Message message = receiveMessage();
         /**
-         * Quando clients é null significa que quem está recendo mensagem é o cliente os tipos são {@link com.mullercarlos.monitoring.message.Type#START START}, {@link com.mullercarlos.monitoring.message.Type#STOP STOP}
+         * Quando clients é null significa que quem está recendo mensagem é o cliente
+         * os tipos são {@link com.mullercarlos.monitoring.message.Type#START START},
+         *  {@link com.mullercarlos.monitoring.message.Type#STOP STOP}
          * e {@link com.mullercarlos.monitoring.message.Type#FOLLOW FOLLOW}
          */
-        if (clients != null) {//Mensagens do cliente para o Servidor
+        if (clients != null) {
+            //Mensagens do cliente para o Servidor
             if (message instanceof Signin) {
-                Signin signin = (Signin) message;
-                ClientModel clientModel = ClientModel.builder().authKey(signin.getAuthKey()).serviceList(signin.getServiceList()).port(signin.getPortListener())
-                        .ip(socket.getInetAddress()
-                                .getHostAddress()).build();
-                String authKey = clientModel.getAuthKey();
-                if (clients.containsKey(authKey)) {
-                    if (verbose) {
-                        System.out.println(UUID + " - Existe um cliente com a chave: [" + authKey + "]");
-                    }
-                    ClientModel existent = (ClientModel) clients.get(authKey);
-                    if (!existent.equals(clientModel)) {//bloqueia caso usem a a mesma chave mas são diferentes
-                        if (verbose) {
-                            System.out.println(UUID + " - BLOQUEADO - Os clientes eram diferentes então bloqueie existent[" + existent + "] da mensagem[" + clientModel + "]");
-                        }
-                        sendMessage(new Failed("not allowed"));
-                        return;
-                    }
-                }
-                if (verbose) {
-                    System.out.println(UUID + " - Colocando o cliente no mapa de autorizados: [" + clientModel + "]");
-                }
-                clients.putIfAbsent(authKey, clientModel);
-                sendMessage(new Ok("Consegui te cadstrar com sucesso", authKey));
+                handleSignin((Signin) message);
                 return;
             }
             if (message instanceof Health) {
-                Health healthUpdate = ((Health) message);
-                String authKey = healthUpdate.getAuthKey();
-                if (clients.containsKey(authKey)) {//Para tratar essa mensagem o cliente tem que ter mandado antes a de SINGIN
-                    ClientModel signedIn = (ClientModel) clients.get(authKey);
-                    String hostAddress = socket.getInetAddress().getHostAddress();
-                    if (!signedIn.getIp().equals(hostAddress)) {// uma chave só pode responder para um ip
-                        if (verbose) {
-                            System.out.println(UUID + " - BLOQUEADO - Os ips diferem para a chave[" + authKey + "] cadastrado[" + signedIn.getIp() + "] da mensagem[" + hostAddress + "]");
-                        }
-                        sendMessage(new Failed("not allowed"));
-                        return;
-                    }
-                    signedIn.updateHealth(healthUpdate);
-                    sendMessage(new Ok("Health updated", authKey));
-                } else {//Bloqueia caso não tenha ainda sido cadastrado
-                    if (verbose) {
-                        System.out.println(UUID + " - BLOQUEADO - Por não achar o a chame no mapa chave[" + authKey + "]");
-                    }
-                    sendMessage(new Failed("You should send signin first!"));
-                    return;
-                }
+                handleHealth((Health) message);
+                return;
             }
-        } else {//Mensagens do servidor para o cliente
+        } else {
+            //Mensagens do servidor para o cliente
             if (message instanceof Follow) {
-                Follow follow = (Follow) message;
-                if (follow.getAuthKey().equals(authKey)) {
-                    String pathOfFile = follow.getPathOfFile();
-                    Path path = Paths.get(pathOfFile);
-                    if (!Files.isReadable(path)) {
-                        if (verbose) {
-                            System.out.println(UUID + " - FALHO - Porque o arquivo não é legivel[" + pathOfFile + "]");
-                        }
-                        sendMessage(new Failed("Can't read"));
-                        return;
-                    }
-                    sendMessage(new Ok("Can't read", authKey));
-                    this.output.flush();
-                    try {
-                        BufferedReader bufferedReader = Files.newBufferedReader(path);
-                        while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
-                            if (socket.isClosed()){
-                                if(verbose){
-                                    System.out.println(UUID + " - SUCCESS - conexão fechada do follow[" + pathOfFile + "]");
-                                }
-                                return;
-                            }
-                            String s = bufferedReader.readLine();
-                            if (s == null) {
-                                sleep(100);
-                            }else{
-                                this.output.println(s);
-                                this.output.flush();
-                                sleep(100);
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                }
+                handleFollow((Follow) message);
+                return;
             }
         }
+    }
+
+    private void handleFollow(Follow message) {
+        Follow follow = message;
+        if (follow.getAuthKey().equals(authKey)) {
+            String pathOfFile = follow.getPathOfFile();
+            Path path = Paths.get(pathOfFile);
+            if (!Files.isReadable(path)) {
+                if (verbose) {
+                    System.out.println(UUID + " - FALHO - Porque o arquivo não é legivel[" + pathOfFile + "]");
+                }
+                sendMessage(new Failed("Can't read"));
+                return;
+            }
+            sendMessage(new Ok("Can't read", authKey));
+            this.output.flush();
+            try {
+                BufferedReader bufferedReader = Files.newBufferedReader(path);
+                while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
+                    if (socket.isClosed()) {
+                        if (verbose) {
+                            System.out.println(UUID + " - SUCCESS - conexão fechada do follow[" + pathOfFile + "]");
+                        }
+                        return;
+                    }
+                    String s = bufferedReader.readLine();
+                    if (s == null) {
+                        sleep(100);
+                    } else {
+                        this.output.println(s);
+                        this.output.flush();
+                        sleep(100);
+                    }
+                }
+            } catch (IOException e) {
+                if(Thread.interrupted()){
+                    try {
+                        this.close();
+                        return;
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+                return;
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+    }
+
+    private void handleHealth(Health message) {
+        Health healthUpdate = message;
+        String authKey = healthUpdate.getAuthKey();
+        if (clients.containsKey(authKey)) {//Para tratar essa mensagem o cliente tem que ter mandado antes a de SINGIN
+            ClientModel signedIn = (ClientModel) clients.get(authKey);
+            String hostAddress = socket.getInetAddress().getHostAddress();
+            if (!signedIn.getIp().equals(hostAddress)) {// uma chave só pode responder para um ip
+                if (verbose) {
+                    System.out.println(UUID + " - BLOQUEADO - Os ips diferem para a chave[" + authKey + "] cadastrado[" + signedIn.getIp() + "] da mensagem[" + hostAddress + "]");
+                }
+                sendMessage(new Failed("not allowed"));
+                return;
+            }
+            signedIn.updateHealth(healthUpdate);
+            sendMessage(new Ok("Health updated", authKey));
+        } else {//Bloqueia caso não tenha ainda sido cadastrado
+            if (verbose) {
+                System.out.println(UUID + " - BLOQUEADO - Por não achar o a chame no mapa chave[" + authKey + "]");
+            }
+            sendMessage(new Failed("You should send signin first!"));
+            return;
+        }
+    }
+
+    /**
+     * Responvasel por lidar com mesnagems do tipo health, checa se já existe alguem com aquela chave
+     * @param message
+     * @return
+     */
+    private boolean handleSignin(Signin message) {
+        Signin signin = message;
+        ClientModel clientModel = ClientModel.builder().authKey(signin.getAuthKey()).serviceList(signin.getServiceList()).port(signin.getPortListener())
+                .ip(socket.getInetAddress()
+                        .getHostAddress()).build();
+        String authKey = clientModel.getAuthKey();
+        if (clients.containsKey(authKey)) {
+            if (verbose) {
+                System.out.println(UUID + " - Existe um cliente com a chave: [" + authKey + "]");
+            }
+            ClientModel existent = (ClientModel) clients.get(authKey);
+            if (!existent.equals(clientModel)) {//bloqueia caso usem a a mesma chave mas são diferentes
+                if (verbose) {
+                    System.out.println(UUID + " - BLOQUEADO - Os clientes eram diferentes então bloqueie existent[" + existent + "] da mensagem[" + clientModel + "]");
+                }
+                sendMessage(new Failed("not allowed"));
+                return true;
+            }
+        }
+        if (verbose) {
+            System.out.println(UUID + " - Colocando o cliente no mapa de autorizados: [" + clientModel + "]");
+        }
+        clients.putIfAbsent(authKey, clientModel);
+        sendMessage(new Ok("Consegui te cadstrar com sucesso", authKey));
+        return false;
     }
 
     public void sendMessage(Message message) {
@@ -159,6 +192,7 @@ public class MessageHandler extends Thread {
         return message;
     }
 
+    //TODO colocar isso no server?
     public void follow(Scanner scanner) {
         Thread systemOutThread = new Thread(() -> {
             do {
@@ -169,22 +203,23 @@ public class MessageHandler extends Thread {
                 } catch (InterruptedException e) {
                     return;
                 } catch (IOException e) {
+                    if(e instanceof SocketTimeoutException){
+                        return;
+                    }
                     e.printStackTrace();
                 }
             } while (true);
         }, "Impressao do follow");
         systemOutThread.start();
         String option;
-        do{
+        do {
             System.out.println("Pressione q para sair");
             option = scanner.nextLine();
-        }while (!option.equals("q"));
+        } while (!option.equals("q"));
         systemOutThread.interrupt();
     }
 
     public void close() throws IOException {
-        this.output.close();
-        this.input.close();
         this.socket.close();
     }
 

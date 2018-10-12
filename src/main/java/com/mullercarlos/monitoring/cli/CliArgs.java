@@ -29,6 +29,8 @@ public class CliArgs {
 
     @Option(names = {"-s", "--server"}, description = "servidor e porta para se comunicar 123.112.132.123:8080")
     private String server;
-    
+
+    @Option(names = {"-a", "--auth-key"}, description = "chave da api para o cliente mandar pro servidor(gerada pela opção 1 do servidor)")
+    private String authKey;
 
 }
