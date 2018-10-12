@@ -68,8 +68,6 @@ class MessageHandlerTest {
         PrintWriter out = mock(PrintWriter.class);
         reflection.setField(messageHandler, "output", out);
         messageHandler.close();
-        verify(messageHandler.input, only()).close();
-        verify(messageHandler.output, only()).close();
         verify(messageHandler.socket, times(1)).close();
     }
 

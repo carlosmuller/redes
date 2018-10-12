@@ -15,7 +15,7 @@ public class CONSTANTS {
     /**
      * Ida e volta de mensagem tipo HEALTH
      */
-    public final static Health HEALTH = new Health("75%", "5G/16G", "50G", "authKey");
-    public final static String HEALTHJSON = "{\"cpuUsage\":\"75%\",\"ramUsage\":\"5G/16G\",\"diskUsage\":\"50G\",\"type\":\"HEALTH\",\"authKey\":\"authKey\"}";
+    public final static Health HEALTH = new Health(45.00, 500000, 5000,123546, "authKey");
+    public final static String HEALTHJSON = "{\"cpuUsage\":45.0,\"ramUsage\":500000,\"totalRam\":5000,\"diskUsage\":123546,\"type\":\"HEALTH\",\"authKey\":\"authKey\"}";
 
 }

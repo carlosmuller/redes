@@ -22,14 +22,16 @@ public class ClientModel {
     @ToString.Exclude
     private Boolean isHealth;
 
-    private String cpuUsage;
-    private String diskUsage;
-    private String ramUsage;
+    private double cpuUsage;
+    private long diskUsage;
+    private long ramUsage;
+    private long totalRam;
 
     public void updateHealth(Health healthUpdate) {
         this.setIsHealth(true);
         this.cpuUsage = healthUpdate.getCpuUsage();
         this.ramUsage = healthUpdate.getRamUsage();
+        this.totalRam = healthUpdate.getTotalRam();
         this.diskUsage =  healthUpdate.getDiskUsage();
         this.lastHealthCheck = now();
     }

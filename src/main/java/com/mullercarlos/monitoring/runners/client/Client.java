@@ -116,7 +116,7 @@ public class Client extends RunnerInterface {
         double systemCpuLoad = si.getHardware().getProcessor().getSystemCpuLoad();
         long available = memory.getAvailable();
         long total = memory.getTotal();
-        return new Health(systemCpuLoad * 100 + "%", ((total - available) + "/" + total), "", this.authKey);
+        return new Health(systemCpuLoad *100, total-available, total, 0L, this.authKey);
     }
 
 

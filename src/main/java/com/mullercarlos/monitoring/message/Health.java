@@ -9,14 +9,16 @@ import static com.mullercarlos.monitoring.message.Type.HEALTH;
 @ToString(callSuper = true)
 public class Health extends Message {
 
-    private String cpuUsage;
-    private String ramUsage;
-    private String diskUsage;
+    private double cpuUsage;
+    private long ramUsage;
+    private long totalRam;
+    private long diskUsage;
 
-    public Health(String cpuUsage, String ramUsage, String diskUsage, String authKey){
+    public Health(double cpuUsage, long ramUsage, long totalRam, long diskUsage, String authKey){
         super(HEALTH, authKey);
         this.cpuUsage = cpuUsage;
         this.ramUsage = ramUsage;
+        this.totalRam = totalRam;
         this.diskUsage = diskUsage;
     }
 }
