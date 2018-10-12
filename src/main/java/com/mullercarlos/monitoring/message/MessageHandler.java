@@ -7,7 +7,10 @@ import lombok.SneakyThrows;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static java.time.LocalDateTime.now;
 
 public class MessageHandler extends Thread {
 
@@ -145,7 +148,10 @@ public class MessageHandler extends Thread {
      */
     private boolean handleSignin(Signin message) {
         Signin signin = message;
-        ClientModel clientModel = ClientModel.builder().authKey(signin.getAuthKey()).serviceList(signin.getServiceList()).port(signin.getPortListener())
+        ClientModel clientModel = ClientModel.builder().authKey(signin.getAuthKey())
+                .serviceList(signin.getServiceList())
+                .port(signin.getPortListener())
+                .lastHealthCheck(now())
                 .ip(socket.getInetAddress()
                         .getHostAddress()).build();
         String authKey = clientModel.getAuthKey();

@@ -41,7 +41,7 @@ public class Server extends RunnerInterface {
                     this.clientKeys.forEach((key, client) -> client.isHealth());
                 }
                 try {
-                    sleep(6000);
+                    sleep(1500);
                 } catch (InterruptedException e) {
                     if (Thread.interrupted()){
                         System.out.println("Fechando "+ Thread.currentThread().getName());

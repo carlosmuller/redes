@@ -40,7 +40,7 @@ public class ClientModel {
     }
 
     public boolean hasEnoughRam(){
-        return ramRatio() >= 75.00;
+        return ramRatio() <= 75.00;
     }
 
     private double ramRatio() {
@@ -48,9 +48,13 @@ public class ClientModel {
     }
 
     public boolean isHealth(){
-        boolean isHealth = !hasEnoughRam() && hasHighCpuUsage() && ChronoUnit.MINUTES.between(lastHealthCheck, now())>=5;
+        long minutesBetweenLastHealthCheckAndNow = ChronoUnit.MINUTES.between(this.lastHealthCheck, now());
+        boolean isHealth = hasEnoughRam();
+        isHealth=!hasHighCpuUsage() && isHealth;
+        isHealth=minutesBetweenLastHealthCheckAndNow <=5 && isHealth;
         if(!isHealth){
-            System.err.println("O client ["+ this.authKey+"] não está saudavel cpu["+this.cpuUsage+"%] ramUsage["+ramRatio()+"%]!");
+            String message = String.format("O cliente [%s] não está saudavel cpu[%.2f%%] ramUsage[%.2f%%] tempo entre ultima mensagem do cliente %d!", this.authKey, this.cpuUsage, ramRatio(), minutesBetweenLastHealthCheckAndNow);
+            System.err.println(message);
         }
         return isHealth;
     }
