@@ -41,9 +41,12 @@ public class Server extends RunnerInterface {
                     this.clientKeys.forEach((key, client) -> client.isHealth());
                 }
                 try {
-                    sleep(60000);
+                    sleep(6000);
                 } catch (InterruptedException e) {
-                    if (Thread.interrupted()) return;
+                    if (Thread.interrupted()){
+                        System.out.println("Fechando "+ Thread.currentThread().getName());
+                        return;
+                    }
                 }
             }
 
@@ -53,7 +56,7 @@ public class Server extends RunnerInterface {
         Scanner scanner = new Scanner(System.in);
         int option = -1;
         do {
-            System.out.println("Digite uma das opções:\n 1) Gerar chave para cliente\n 2) Listar clientes e status\n 3) Seguir um arquivo de cliente\n 4) Fechar programa");
+            System.out.println("Digite uma das opções:\n 1) Gerar chave para cliente\n 2) Listar clientes e status\n 3) Seguir um arquivo de cliente\n 4) Remover cliente\n 5) Fechar programa");
             option = scanner.nextInt();
             switch (option) {
                 case 1: {
@@ -75,14 +78,21 @@ public class Server extends RunnerInterface {
                     }
                     break;
                 }
-                case 4:
-                    listenerThread.interrupt();
-                    return;
+                case 4: {
+                    if (clientKeys.isEmpty()) System.out.println("Sem clientes");
+                    ClientModel client = getClient(scanner);
+                    if (client!=null) this.clientKeys.remove(client.getAuthKey());
+                    break;
+                }
+                case 5:
+                        threadToCheckHealthOfClients.interrupt();
+                        listenerThread.interrupt();
+                     return;
                 default:
                     break;
             }
             System.out.println(option);
-        } while (option != 4);
+        } while (option != 5);
 
 
     }
@@ -94,6 +104,32 @@ public class Server extends RunnerInterface {
 
     @SneakyThrows
     private void followOption(Scanner scanner) {
+        ClientModel client = getClient(scanner);
+        if(client==null)return;
+        System.out.println("Digite o caminho no servidor remoto");
+        scanner.nextLine();
+        String file = scanner.nextLine();
+        if (null == file || file.isEmpty()) {
+            System.out.println("Digite algo");
+            followOption(scanner);
+        }
+        scanner.reset();
+        System.out.println("Pressione q para sair");
+
+        Socket socket = new Socket(client.getIp(), client.getPort());
+        MessageHandler handler = new MessageHandler(socket, args.isVerbose(), UUID.randomUUID().toString());
+        Follow follow = new Follow(file, client.getAuthKey());
+        handler.sendMessage(follow);
+        Message message = handler.receiveMessage();
+        if (message.getType() == Type.FAILED) {
+            System.out.println(((Failed) message).getMessage());
+            return;
+        }
+        handler.follow(scanner);
+        handler.close();
+    }
+
+    private ClientModel getClient(Scanner scanner) {
         System.out.println("Selecione o cliente:");
         List<ClientModel> clients = clientKeys.values().stream().collect(toList());
         int totalClients = clients.size();
@@ -107,34 +143,14 @@ public class Server extends RunnerInterface {
             clientOption = scanner.nextInt();
             if (clientOption > totalClients) {
                 System.out.println("Numero inválido");
-                followOption(scanner);
+                return getClient(scanner);
             }
-            if (clientOption - 1 == -1) return;
+            if (clientOption - 1 == -1) return null;
         } catch (Exception e) {
             System.out.println("digite um numero:");
-            followOption(scanner);
+            return getClient(scanner);
         }
-        System.out.println("Digite o caminho no servidor remoto");
-        scanner.nextLine();
-        String file = scanner.nextLine();
-        if (null == file || file.isEmpty()) {
-            System.out.println("Digite algo");
-            followOption(scanner);
-        }
-        scanner.reset();
-        System.out.println("Pressione q para sair");
-        ClientModel client = clients.get(clientOption - 1);
-        Socket socket = new Socket(client.getIp(), client.getPort());
-        MessageHandler handler = new MessageHandler(socket, args.isVerbose(), UUID.randomUUID().toString());
-        Follow follow = new Follow(file, client.getAuthKey());
-        handler.sendMessage(follow);
-        Message message = handler.receiveMessage();
-        if (message.getType() == Type.FAILED) {
-            System.out.println(((Failed) message).getMessage());
-            return;
-        }
-        handler.follow(scanner);
-        handler.close();
+        return clients.get(clientOption - 1);
     }
 
 

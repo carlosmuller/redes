@@ -36,6 +36,7 @@ public class ListenerThreadBuilder {
                         ).start();
                     } catch (IOException e) {
                         if (Thread.interrupted()) {
+                            System.out.println("Fechando "+ Thread.currentThread().getName());
                             serverSocket.close();
                             return;
                         }
