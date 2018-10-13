@@ -11,7 +11,7 @@ import static com.mullercarlos.monitoring.message.Type.OK;
 public class Ok extends Message {
     private String message;
 
-    Ok(String message, String authKey) {
+    public Ok(String message, String authKey) {
         super(OK, authKey);
         this.message = message;
     }

@@ -133,6 +133,7 @@ public class Server extends RunnerInterface {
         Message message = handler.receiveMessage();
         if (message.getType() == Type.FAILED) {
             System.out.println(((Failed) message).getMessage());
+            handler.close();
             return;
         }
         handler.follow(scanner);

@@ -79,7 +79,7 @@ public class MessageHandler extends Thread {
                 sendMessage(new Failed("Can't read"));
                 return;
             }
-            sendMessage(new Ok("Can't read", authKey));
+            sendMessage(new Ok("Starting reading file", authKey));
             this.output.flush();
             try {
                 BufferedReader bufferedReader = Files.newBufferedReader(path);
@@ -113,9 +113,15 @@ public class MessageHandler extends Thread {
             } catch (InterruptedException e) {
                 return;
             }
+        }else{
+            sendMessage(new Failed("mismatch keys"));
         }
     }
 
+    /**
+     * Método responsável por tratar as mensagens de Health que vem do client
+     * @param message
+     */
     private void handleHealth(Health message) {
         Health healthUpdate = message;
         String authKey = healthUpdate.getAuthKey();
@@ -160,7 +166,7 @@ public class MessageHandler extends Thread {
                 System.out.println(UUID + " - Existe um cliente com a chave: [" + authKey + "]");
             }
             ClientModel existent = (ClientModel) clients.get(authKey);
-            if (!existent.equals(clientModel)) {//bloqueia caso usem a a mesma chave mas são diferentes
+            if (!existent.getIp().equals(clientModel.getIp())) {//bloqueia caso usem a a mesma chave mas são diferentes
                 if (verbose) {
                     System.out.println(UUID + " - BLOQUEADO - Os clientes eram diferentes então bloqueie existent[" + existent + "] da mensagem[" + clientModel + "]");
                 }
@@ -184,13 +190,16 @@ public class MessageHandler extends Thread {
 
     @SneakyThrows
     public Message receiveMessage() {
-        String line;
-        StringBuilder builder = new StringBuilder();
+        String line= this.input.readLine();
+        if(line == null) return null;
+        StringBuilder builder = new StringBuilder(line);
         do {
             line = this.input.readLine();
             builder.append(line);
         } while (this.input.ready());
-        String jsonString = builder.toString();
+        System.out.println(builder.toString());
+
+        String jsonString = builder.toString().trim().replaceAll("(\\r|\\n)", "");
         //Por limitação da lib tive que converter duas vezes uma para a classe Mãe Message e outra para o a classe que está no Type
         Message message = JSONUtils.deserialize(jsonString, Message.class);
         message = (Message) JSONUtils.deserialize(jsonString, message.getType().getClazz());
