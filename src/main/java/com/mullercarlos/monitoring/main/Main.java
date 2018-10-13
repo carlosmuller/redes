@@ -14,11 +14,11 @@ public class Main {
         //A lib que le as opções de linha de comando e popula a classe com os args passados
         new CommandLine(cliArgs).parse(args);
         //printa opções
-        if(cliArgs.isVerbose()) {
+        if (cliArgs.isVerbose()) {
             System.out.println(cliArgs);
         }
         //se a usuário passou -h
-        if(cliArgs.isUsageHelpRequested()){
+        if (cliArgs.isUsageHelpRequested()) {
             CommandLine.usage(new CliArgs(), System.out);
             return;
         }

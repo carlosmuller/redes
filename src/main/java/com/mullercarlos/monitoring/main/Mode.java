@@ -9,19 +9,19 @@ import com.mullercarlos.monitoring.runners.server.Server;
  * Enum responsavel para representação dos modos de execução do programa
  */
 public enum Mode {
-    server(){
+    server() {
         @Override
         public RunnerInterface getRunner(CliArgs args) {
-           return new Server(args);
+            return new Server(args);
         }
-    }, client(){
+    }, client() {
         @Override
         public RunnerInterface getRunner(CliArgs args) {
             return new Client(args);
         }
     };
 
-    public RunnerInterface getRunner(CliArgs args){
+    public RunnerInterface getRunner(CliArgs args) {
         throw new IllegalStateException("O modo novo deve implementar o run");
     }
 }

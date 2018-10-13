@@ -2,18 +2,16 @@ package com.mullercarlos.monitoring.runners;
 
 import com.mullercarlos.monitoring.cli.CliArgs;
 import com.mullercarlos.monitoring.message.MessageHandler;
-import lombok.*;
+import lombok.ToString;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Map;
 
 @ToString
 public abstract class RunnerInterface {
+    protected final CliArgs args;
     private boolean verbose;
     private int port;
-
-    protected final CliArgs args;
 
     protected RunnerInterface(CliArgs args) {
         this.args = args;

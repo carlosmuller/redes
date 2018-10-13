@@ -19,7 +19,7 @@ public class ClientModel {
     @ToString.Exclude
     private Integer port;
     @ToString.Exclude
-    private String  ip;
+    private String ip;
 
     private double cpuUsage;
     private long diskUsage;
@@ -30,29 +30,29 @@ public class ClientModel {
         this.cpuUsage = healthUpdate.getCpuUsage();
         this.ramUsage = healthUpdate.getRamUsage();
         this.totalRam = healthUpdate.getTotalRam();
-        this.diskUsage =  healthUpdate.getDiskUsage();
+        this.diskUsage = healthUpdate.getDiskUsage();
         this.lastHealthCheck = now();
 
     }
 
-    public boolean hasHighCpuUsage(){
+    public boolean hasHighCpuUsage() {
         return this.cpuUsage >= 75.00;
     }
 
-    public boolean hasEnoughRam(){
+    public boolean hasEnoughRam() {
         return ramRatio() <= 75.00;
     }
 
     private double ramRatio() {
-        return (this.ramUsage/(double)this.totalRam)*100;
+        return (this.ramUsage / (double) this.totalRam) * 100;
     }
 
-    public boolean isHealth(){
+    public boolean isHealth() {
         long minutesBetweenLastHealthCheckAndNow = ChronoUnit.MINUTES.between(this.lastHealthCheck, now());
         boolean isHealth = hasEnoughRam();
-        isHealth=!hasHighCpuUsage() && isHealth;
-        isHealth=minutesBetweenLastHealthCheckAndNow <=5 && isHealth;
-        if(!isHealth){
+        isHealth = !hasHighCpuUsage() && isHealth;
+        isHealth = minutesBetweenLastHealthCheckAndNow <= 5 && isHealth;
+        if (!isHealth) {
             String message = String.format("O cliente [%s] não está saudavel cpu[%.2f%%] ramUsage[%.2f%%] tempo entre ultima mensagem do cliente %d!", this.authKey, this.cpuUsage, ramRatio(), minutesBetweenLastHealthCheckAndNow);
             System.err.println(message);
         }

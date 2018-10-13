@@ -12,7 +12,7 @@ public class Message {
     private final String authKey;
 
 
-    public Message(){
+    public Message() {
         this(null, null);
     }
 

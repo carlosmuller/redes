@@ -7,7 +7,6 @@ import lombok.SneakyThrows;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.time.LocalDateTime.now;
@@ -101,7 +100,7 @@ public class MessageHandler extends Thread {
                     }
                 }
             } catch (IOException e) {
-                if(Thread.interrupted()){
+                if (Thread.interrupted()) {
                     try {
                         this.close();
                         return;
@@ -134,7 +133,7 @@ public class MessageHandler extends Thread {
             sendMessage(new Ok("Health updated", authKey));
         } else {//Bloqueia caso não tenha ainda sido cadastrado
             if (verbose) {
-                System.out.println(UUID + " - BLOQUEADO - Por não achar o a chame no mapa chave[" + authKey + "]");
+                System.out.println(UUID + " - BLOQUEADO - Por não achar o a chave no mapa chave[" + authKey + "]");
             }
             sendMessage(new Failed("You should send signin first!"));
             return;
@@ -143,6 +142,7 @@ public class MessageHandler extends Thread {
 
     /**
      * Responvasel por lidar com mesnagems do tipo health, checa se já existe alguem com aquela chave
+     *
      * @param message
      * @return
      */
@@ -209,7 +209,7 @@ public class MessageHandler extends Thread {
                 } catch (InterruptedException e) {
                     return;
                 } catch (IOException e) {
-                    if(e instanceof SocketTimeoutException){
+                    if (e instanceof SocketTimeoutException) {
                         return;
                     }
                     e.printStackTrace();

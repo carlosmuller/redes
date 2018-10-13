@@ -14,7 +14,7 @@ public class Health extends Message {
     private long totalRam;
     private long diskUsage;
 
-    public Health(double cpuUsage, long ramUsage, long totalRam, long diskUsage, String authKey){
+    public Health(double cpuUsage, long ramUsage, long totalRam, long diskUsage, String authKey) {
         super(HEALTH, authKey);
         this.cpuUsage = cpuUsage;
         this.ramUsage = ramUsage;

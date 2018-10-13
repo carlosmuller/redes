@@ -7,7 +7,7 @@ import com.mullercarlos.monitoring.runners.*;
 import lombok.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,11 +17,11 @@ import static java.util.stream.Collectors.toList;
 @ToString(callSuper = true)
 public class Server extends RunnerInterface {
 
+    private static final ConcurrentHashMap<String, ClientModel> clientKeys = new ConcurrentHashMap<>();
+
     public Server(CliArgs args) {
         super(args);
     }
-
-    private static final ConcurrentHashMap<String, ClientModel> clientKeys = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -33,7 +33,7 @@ public class Server extends RunnerInterface {
             e.printStackTrace();
         }
         if (!listenerThread.isAlive()) return;
-        System.out.println("Theread de escuta aberta ouvindo na porta " + args.getPort());
+        System.out.println("Thread de escuta aberta ouvindo na porta " + args.getPort());
         //Thread para checar se o cliente está saudavel a cada min
         Thread threadToCheckHealthOfClients = new Thread(() -> {
             while (true) {
@@ -43,8 +43,8 @@ public class Server extends RunnerInterface {
                 try {
                     sleep(1500);
                 } catch (InterruptedException e) {
-                    if (Thread.interrupted()){
-                        System.out.println("Fechando "+ Thread.currentThread().getName());
+                    if (Thread.interrupted()) {
+                        System.out.println("Fechando " + Thread.currentThread().getName());
                         return;
                     }
                 }
@@ -52,6 +52,16 @@ public class Server extends RunnerInterface {
 
         }, "Thread de checar se clientes estão bem");
         threadToCheckHealthOfClients.start();
+        try {
+            sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (!threadToCheckHealthOfClients.isAlive()) {
+            listenerThread.interrupt();
+            System.out.println("A thread que checa a saude dos clientes não abriu vou para");
+            return;
+        }
         //TODO talvez deixar isso mais claro?
         Scanner scanner = new Scanner(System.in);
         int option = -1;
@@ -81,13 +91,13 @@ public class Server extends RunnerInterface {
                 case 4: {
                     if (clientKeys.isEmpty()) System.out.println("Sem clientes");
                     ClientModel client = getClient(scanner);
-                    if (client!=null) this.clientKeys.remove(client.getAuthKey());
+                    if (client != null) this.clientKeys.remove(client.getAuthKey());
                     break;
                 }
                 case 5:
-                        threadToCheckHealthOfClients.interrupt();
-                        listenerThread.interrupt();
-                     return;
+                    threadToCheckHealthOfClients.interrupt();
+                    listenerThread.interrupt();
+                    return;
                 default:
                     break;
             }
@@ -105,7 +115,7 @@ public class Server extends RunnerInterface {
     @SneakyThrows
     private void followOption(Scanner scanner) {
         ClientModel client = getClient(scanner);
-        if(client==null)return;
+        if (client == null) return;
         System.out.println("Digite o caminho no servidor remoto");
         scanner.nextLine();
         String file = scanner.nextLine();
