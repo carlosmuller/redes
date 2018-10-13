@@ -34,10 +34,11 @@ java -jar monitoring-1.0-SNAPSHOT-jar-with-dependencies.jar -m=server -p=8080
 Para rodar em modo cliente:
 
 ```
-java -jar monitoring-1.0-SNAPSHOT-jar-with-dependencies.jar -m=client -p=8080 -s=192.168.1.123:8080
+java -jar monitoring-1.0-SNAPSHOT-jar-with-dependencies.jar -m=client -p=8080 -s=192.168.1.123:8080 -a=authKey
 ```
 
 Tanto o servidor como o cliente escutam mensagens por isso precisa da opção `[-p|--port]`.
 
 ## Mais informações
 Para melhor documentação vá para [docs](docs/PacotesEClasses.md)
+

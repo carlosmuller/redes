@@ -1,4 +1,4 @@
-package com.mullercarlos.monitoring;
+package com.mullercarlos.monitoring.utils;
 
 import com.mullercarlos.monitoring.message.*;
 import com.mullercarlos.monitoring.models.Service;
@@ -9,8 +9,8 @@ public class CONSTANTS {
     /**
      * Ida e volta de mensagem tipo signin
      */
-    public final static Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), 1);
-    public final static String SIGNINJSON = "{\"serviceList\":[{\"name\":\"service\",\"ramUsage\":\"1\",\"cpuUsage\":\"1\"}],\"portListener\":1,\"type\":\"SIGNIN\",\"authKey\":\"authKey\"}";
+    public final static Signin SIGNIN = new Signin("authKey", List.of(Service.builder().name("service").status("running").build()), 1);
+    public final static String SIGNINJSON = "{\"serviceList\":[{\"name\":\"service\",\"status\":\"running\"}],\"portListener\":1,\"type\":\"SIGNIN\",\"authKey\":\"authKey\"}";
 
     /**
      * Ida e volta de mensagem tipo HEALTH

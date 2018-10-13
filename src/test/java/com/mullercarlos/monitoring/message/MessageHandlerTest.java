@@ -12,7 +12,7 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
-import static com.mullercarlos.monitoring.CONSTANTS.*;
+import static com.mullercarlos.monitoring.utils.CONSTANTS.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

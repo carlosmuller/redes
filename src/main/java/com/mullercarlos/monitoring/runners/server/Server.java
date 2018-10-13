@@ -3,7 +3,7 @@ package com.mullercarlos.monitoring.runners.server;
 import com.mullercarlos.monitoring.cli.CliArgs;
 import com.mullercarlos.monitoring.message.*;
 import com.mullercarlos.monitoring.models.ClientModel;
-import com.mullercarlos.monitoring.runners.RunnerInterface;
+import com.mullercarlos.monitoring.runners.*;
 import lombok.*;
 
 import java.io.IOException;

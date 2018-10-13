@@ -4,7 +4,7 @@ import com.mullercarlos.monitoring.cli.CliArgs;
 import com.mullercarlos.monitoring.message.*;
 import com.mullercarlos.monitoring.models.Service;
 import com.mullercarlos.monitoring.runners.RunnerInterface;
-import com.mullercarlos.monitoring.runners.server.ListenerThreadBuilder;
+import com.mullercarlos.monitoring.runners.ListenerThreadBuilder;
 import lombok.*;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -46,7 +46,7 @@ public class Client extends RunnerInterface {
             /**
              * TODO a way to add services to monitor
              */
-            Signin SIGNIN = new Signin(this.authKey, List.of(Service.builder().name("service").cpuUsage("1").ramUsage("1").build()), args.getPort());
+            Signin SIGNIN = new Signin(this.authKey, List.of(Service.builder().name("service").status("running").build()), args.getPort());
             messageHandler.sendMessage(SIGNIN);
             Message response = messageHandler.receiveMessage();
             if(response instanceof Failed){
