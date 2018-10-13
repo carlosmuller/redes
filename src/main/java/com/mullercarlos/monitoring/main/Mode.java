@@ -1,9 +1,8 @@
 package com.mullercarlos.monitoring.main;
 
-import com.mullercarlos.monitoring.cli.CliArgs;
 import com.mullercarlos.monitoring.runners.RunnerInterface;
-import com.mullercarlos.monitoring.runners.client.Client;
-import com.mullercarlos.monitoring.runners.server.Server;
+import com.mullercarlos.monitoring.runners.Client;
+import com.mullercarlos.monitoring.runners.Server;
 
 /**
  * Enum responsavel para representação dos modos de execução do programa

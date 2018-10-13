@@ -190,9 +190,9 @@ public class MessageHandler extends Thread {
 
     @SneakyThrows
     public Message receiveMessage() {
-        String line= this.input.readLine();
-        if(line == null) return null;
-        StringBuilder builder = new StringBuilder(line);
+
+        StringBuilder builder = new StringBuilder();
+        String line =null;
         do {
             line = this.input.readLine();
             builder.append(line);

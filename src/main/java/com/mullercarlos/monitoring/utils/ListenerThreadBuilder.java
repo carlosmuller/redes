@@ -1,7 +1,8 @@
-package com.mullercarlos.monitoring.runners;
+package com.mullercarlos.monitoring.utils;
 
-import com.mullercarlos.monitoring.runners.client.Client;
-import com.mullercarlos.monitoring.runners.server.Server;
+import com.mullercarlos.monitoring.runners.RunnerInterface;
+import com.mullercarlos.monitoring.runners.Client;
+import com.mullercarlos.monitoring.runners.Server;
 
 import java.io.IOException;
 import java.net.*;

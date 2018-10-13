@@ -1,6 +1,6 @@
 package com.mullercarlos.monitoring.runners;
 
-import com.mullercarlos.monitoring.cli.CliArgs;
+import com.mullercarlos.monitoring.main.CliArgs;
 import com.mullercarlos.monitoring.message.MessageHandler;
 import lombok.ToString;
 

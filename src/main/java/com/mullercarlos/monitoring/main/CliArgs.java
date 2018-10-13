@@ -1,4 +1,4 @@
-package com.mullercarlos.monitoring.cli;
+package com.mullercarlos.monitoring.main;
 
 import com.mullercarlos.monitoring.main.Mode;
 import lombok.*;

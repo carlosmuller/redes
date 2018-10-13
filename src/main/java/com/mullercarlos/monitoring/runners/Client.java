@@ -1,9 +1,10 @@
-package com.mullercarlos.monitoring.runners.client;
+package com.mullercarlos.monitoring.runners;
 
-import com.mullercarlos.monitoring.cli.CliArgs;
+import com.mullercarlos.monitoring.main.CliArgs;
 import com.mullercarlos.monitoring.message.*;
 import com.mullercarlos.monitoring.models.Service;
 import com.mullercarlos.monitoring.runners.*;
+import com.mullercarlos.monitoring.utils.ListenerThreadBuilder;
 import lombok.*;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -58,12 +59,13 @@ public class Client extends RunnerInterface {
             int failed = 0;
             while (true) {
                 try {
+                    sendHealthUpdate(split);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
                     sleep(60000);
-                    Health health = buildHealthMessage();
-                    String uuid = UUID.randomUUID().toString();
-                    @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), args.isVerbose(), uuid);
-                    handler.sendMessage(health);
-                    Message response = handler.receiveMessage();
+                    Message response = sendHealthUpdate(split);
                     if (response instanceof Failed) {
                         String failedReason = ((Failed) response).getMessage();
                         if (!failedReason.contains("You should send signin first!")) {
@@ -84,6 +86,14 @@ public class Client extends RunnerInterface {
                 }
             }
         }).start();
+    }
+
+    private Message sendHealthUpdate(String[] split) throws IOException {
+        Health health = buildHealthMessage();
+        String uuid = UUID.randomUUID().toString();
+        @Cleanup MessageHandler handler = new MessageHandler(new Socket(split[0], Integer.parseInt(split[1])), args.isVerbose(), uuid);
+        handler.sendMessage(health);
+        return handler.receiveMessage();
     }
 
     private boolean sendSignIn(String[] split) {

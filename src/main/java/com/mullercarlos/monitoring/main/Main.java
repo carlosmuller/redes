@@ -1,6 +1,5 @@
 package com.mullercarlos.monitoring.main;
 
-import com.mullercarlos.monitoring.cli.CliArgs;
 import picocli.CommandLine;
 
 /**
