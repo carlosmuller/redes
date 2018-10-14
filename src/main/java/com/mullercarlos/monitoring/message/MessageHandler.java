@@ -86,6 +86,7 @@ public class MessageHandler extends Thread {
             this.output.flush();
             try {
                 BufferedReader bufferedReader = Files.newBufferedReader(path);
+                int i = 0;
                 while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
                     if (socket.isClosed()) {
                         if (verbose) {
@@ -95,6 +96,11 @@ public class MessageHandler extends Thread {
                     }
                     String s = bufferedReader.readLine();
                     if (s == null) {
+                        if(i==0){
+                            this.output.println("O arquivo estava vazio");
+                            this.output.flush();
+                            i++;
+                        }
                         socket.sendUrgentData(1);//hack para não  vazar thread quando cliente recebe o follow
                         sleep(100);
                     } else {
@@ -220,13 +226,7 @@ public class MessageHandler extends Thread {
                     String s = this.input.readLine();
                     if (s != null) System.out.println(s);
                     sleep(100);
-                } catch (InterruptedException e) {
-                    return;
-                } catch (IOException e) {
-                    if (e instanceof SocketTimeoutException | e instanceof SocketException) {
-                        return;
-                    }
-                    e.printStackTrace();
+                } catch (InterruptedException | IOException e) {
                     return;
                 }
             } while (true);

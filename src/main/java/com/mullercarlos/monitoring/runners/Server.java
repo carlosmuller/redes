@@ -77,6 +77,7 @@ public class Server extends RunnerInterface {
         int option = -1;
         do {
             System.out.println("Digite uma das opções:\n 1) Gerar chave para cliente\n 2) Listar clientes e status\n 3) Seguir um arquivo de cliente\n 4) Remover cliente\n 5) Fechar programa");
+            scanner.reset();
             option = scanner.nextInt();
             switch (option) {
                 case 1: {
@@ -147,6 +148,7 @@ public class Server extends RunnerInterface {
     private void followOption(Scanner scanner) {
         ClientModel client = getClient(scanner);
         if (client == null) return;
+        scanner.reset();
         System.out.println("Digite o caminho no servidor remoto");
         scanner.nextLine();
         String file = scanner.nextLine();
@@ -172,6 +174,7 @@ public class Server extends RunnerInterface {
     }
 
     private ClientModel getClient(Scanner scanner) {
+        scanner.nextLine();
         System.out.println("Selecione o cliente:");
         List<ClientModel> clients = clientKeys.values().stream().collect(toList());
         int totalClients = clients.size();
@@ -189,6 +192,7 @@ public class Server extends RunnerInterface {
             }
             if (clientOption - 1 == -1) return null;
         } catch (Exception e) {
+            scanner.nextLine();
             System.out.println("digite um numero:");
             return getClient(scanner);
         }
