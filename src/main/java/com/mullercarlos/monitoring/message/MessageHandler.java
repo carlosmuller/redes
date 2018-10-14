@@ -2,7 +2,6 @@ package com.mullercarlos.monitoring.message;
 
 import com.mullercarlos.monitoring.models.ClientModel;
 import com.mullercarlos.monitoring.utils.JSONUtils;
-import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.*;
@@ -41,29 +40,33 @@ public class MessageHandler extends Thread {
     }
 
     void handle() {
-        Message message = receiveMessage();
-        /**
-         * Quando clients é null significa que quem está recendo mensagem é o cliente
-         * os tipos são {@link com.mullercarlos.monitoring.message.Type#START START},
-         *  {@link com.mullercarlos.monitoring.message.Type#STOP STOP}
-         * e {@link com.mullercarlos.monitoring.message.Type#FOLLOW FOLLOW}
-         */
-        if (clients != null) {
-            //Mensagens do cliente para o Servidor
-            if (message instanceof Signin) {
-                handleSignin((Signin) message);
-                return;
+        try {
+            Message message = receiveMessage();
+            /**
+             * Quando clients é null significa que quem está recendo mensagem é o cliente
+             * os tipos são {@link com.mullercarlos.monitoring.message.Type#START START},
+             *  {@link com.mullercarlos.monitoring.message.Type#STOP STOP}
+             * e {@link com.mullercarlos.monitoring.message.Type#FOLLOW FOLLOW}
+             */
+            if (clients != null) {
+                //Mensagens do cliente para o Servidor
+                if (message instanceof Signin) {
+                    handleSignin((Signin) message);
+                    return;
+                }
+                if (message instanceof Health) {
+                    handleHealth((Health) message);
+                    return;
+                }
+            } else {
+                //Mensagens do servidor para o cliente
+                if (message instanceof Follow) {
+                    handleFollow((Follow) message);
+                    return;
+                }
             }
-            if (message instanceof Health) {
-                handleHealth((Health) message);
-                return;
-            }
-        } else {
-            //Mensagens do servidor para o cliente
-            if (message instanceof Follow) {
-                handleFollow((Follow) message);
-                return;
-            }
+        } catch (IOException e) {
+            sendMessage(new Failed(e.getMessage()));
         }
     }
 
@@ -113,13 +116,14 @@ public class MessageHandler extends Thread {
             } catch (InterruptedException e) {
                 return;
             }
-        }else{
+        } else {
             sendMessage(new Failed("mismatch keys"));
         }
     }
 
     /**
      * Método responsável por tratar as mensagens de Health que vem do client
+     *
      * @param message
      */
     private void handleHealth(Health message) {
@@ -188,11 +192,10 @@ public class MessageHandler extends Thread {
         this.output.println(messageJson);
     }
 
-    @SneakyThrows
-    public Message receiveMessage() {
+    public Message receiveMessage() throws IOException {
 
         StringBuilder builder = new StringBuilder();
-        String line =null;
+        String line = null;
         do {
             line = this.input.readLine();
             builder.append(line);

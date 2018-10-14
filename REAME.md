@@ -1,3 +1,11 @@
+ESCOLA DE ARTES, CIÊNCIAS E HUMANIDADES – EACH – USP
+Disciplina: ACH2026 - Redes de Computadores Turma: 04
+Professor: João Luiz Bernardes Junior 
+Atividade:  Ep1 - Programando com sockets  
+Alunos: 8061473 - Carlos Eduardo Müller de Carvalho  Turma: 04
+
+link para o docs https://docs.google.com/document/d/1MFEZxLE6QbFsAXsKt_z_i9jfwajU2_9qFaIsreTNYkg/edit?usp=sharing
+
 #Compilação
 ## O que precisa para compilar?
   
