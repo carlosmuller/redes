@@ -65,12 +65,12 @@ public class MessageHandler extends Thread {
                     return;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             sendMessage(new Failed(e.getMessage()));
         }
     }
 
-    private void handleFollow(Follow message) {
+    private void handleFollow(Follow message){
         Follow follow = message;
         if (follow.getAuthKey().equals(authKey)) {
             String pathOfFile = follow.getPathOfFile();
@@ -95,6 +95,7 @@ public class MessageHandler extends Thread {
                     }
                     String s = bufferedReader.readLine();
                     if (s == null) {
+                        socket.sendUrgentData(1);//hack para não  vazar thread quando cliente recebe o follow
                         sleep(100);
                     } else {
                         this.output.println(s);
@@ -103,18 +104,19 @@ public class MessageHandler extends Thread {
                     }
                 }
             } catch (IOException e) {
-                if (Thread.interrupted()) {
-                    try {
-                        this.close();
-                        return;
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                try {
+                    this.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-                e.printStackTrace();
                 return;
             } catch (InterruptedException e) {
-                return;
+                try {
+                    this.close();
+                    return;
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         } else {
             sendMessage(new Failed("mismatch keys"));
@@ -221,10 +223,11 @@ public class MessageHandler extends Thread {
                 } catch (InterruptedException e) {
                     return;
                 } catch (IOException e) {
-                    if (e instanceof SocketTimeoutException) {
+                    if (e instanceof SocketTimeoutException | e instanceof SocketException) {
                         return;
                     }
                     e.printStackTrace();
+                    return;
                 }
             } while (true);
         }, "Impressao do follow");
