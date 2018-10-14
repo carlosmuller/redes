@@ -1,1 +1,30 @@
-{"79b38798-6424-46eb-b761-ecd68ef017be":{"serviceList":[{"name":"service","status":"running"}],"authKey":"79b38798-6424-46eb-b761-ecd68ef017be","lastHealthCheck":{"date":{"year":2018,"month":10,"day":13},"time":{"hour":23,"minute":4,"second":42,"nano":868165000}},"port":8082,"ip":"127.0.0.1","cpuUsage":6.824232095250661,"diskUsage":0,"ramUsage":7330684928,"totalRam":16749789184}}
+{
+  "79b38798-6424-46eb-b761-ecd68ef017be": {
+    "serviceList": [
+      {
+        "name": "service",
+        "status": "running"
+      }
+    ],
+    "authKey": "79b38798-6424-46eb-b761-ecd68ef017be",
+    "lastHealthCheck": {
+      "date": {
+        "year": 2018,
+        "month": 10,
+        "day": 13
+      },
+      "time": {
+        "hour": 23,
+        "minute": 4,
+        "second": 42,
+        "nano": 868165000
+      }
+    },
+    "port": 8082,
+    "ip": "127.0.0.1",
+    "cpuUsage": 6.824232095250661,
+    "diskUsage": 0,
+    "ramUsage": 7330684928,
+    "totalRam": 16749789184
+  }
+}

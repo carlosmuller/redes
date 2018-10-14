@@ -86,7 +86,7 @@ public class MessageHandler extends Thread {
             this.output.flush();
             try {
                 BufferedReader bufferedReader = Files.newBufferedReader(path);
-                int i = 0;
+                long i = 0;
                 while (true) {//atualiza o server a cada 100 milisegundos, caso o server tenha fechado retorna
                     if (socket.isClosed()) {
                         if (verbose) {
@@ -104,6 +104,7 @@ public class MessageHandler extends Thread {
                         socket.sendUrgentData(1);//hack para não  vazar thread quando cliente recebe o follow
                         sleep(100);
                     } else {
+                        i++;
                         this.output.println(s);
                         this.output.flush();
                         sleep(100);
